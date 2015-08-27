@@ -2,18 +2,18 @@ package com.admicro.vertx.utils;
 
 import io.vertx.core.AsyncResult;
 
-public class SimpleAsyncResult<T> implements AsyncResult {
+public class SimpleAsyncResult<T> implements AsyncResult<T> {
 
     private T result;
     private Throwable cause;
     private boolean succeeded;
 
     public SimpleAsyncResult(T result) {
-
+        this(result, null, true);
     }
 
     public SimpleAsyncResult(Throwable cause) {
-
+        this(null, cause, false);
     }
 
     public SimpleAsyncResult(T result, Throwable cause, boolean succeeded) {
