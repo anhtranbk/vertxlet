@@ -1,0 +1,15 @@
+# Eclipse project files
+.project
+.classpath
+.settings/
+
+# IDEA projects files
+.idea/
+*.iml
+
+# Vert.x caches
+.vertx/
+
+# Build folders
+build/
+target/
