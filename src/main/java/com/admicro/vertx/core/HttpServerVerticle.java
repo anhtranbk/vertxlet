@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
 import org.reflections.Reflections;
 
@@ -40,13 +41,19 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.route(ROOT_PATH).handler(routingContext -> {
             routingContext.addHeadersEndHandler(Future::complete);
             routingContext.next();
-        }).failureHandler(routingContext -> routingContext.response().end("404"));
+        }).failureHandler(routingContext -> {
+            SQLConnection con = routingContext.get("db");
+            if (con != null) {
+                con.close(v -> {});
+            }
+            routingContext.response().putHeader("content-type", "text/html")
+                    .setStatusCode(500).end("<html><h1>Server internal error</h1></html>");
+        });
 
         try {
             scanForMappingUrl(router);
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | InstantiationException e) {
-            logger = LoggerFactory.getLogger(HttpServerVerticle.class);
             logger.error(e.getMessage(), e);
             startFuture.fail(e);
             return;
