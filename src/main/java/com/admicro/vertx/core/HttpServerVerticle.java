@@ -27,16 +27,12 @@ public class HttpServerVerticle extends AbstractVerticle {
     private Logger logger;
 
     /**
-     *
      * @param options
      */
     public HttpServerVerticle(ServerOptions options) {
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    /**
-     *
-     */
     public HttpServerVerticle() {
         this(null);
     }
@@ -51,7 +47,8 @@ public class HttpServerVerticle extends AbstractVerticle {
         }).failureHandler(routingContext -> {
             SQLConnection con = routingContext.get("db");
             if (con != null) {
-                con.close(v -> {});
+                con.close(v -> {
+                });
             }
             routingContext.response().putHeader("content-type", "text/html")
                     .setStatusCode(500).end("<html><h1>Server internal error</h1></html>");

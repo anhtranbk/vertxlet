@@ -31,7 +31,7 @@ public class HttpVertxlet implements Vertxlet {
     }
 
     @Override
-    public void destroy(Future<Void> future)  {
+    public void destroy(Future<Void> future) {
         destroy();
         future.complete();
     }
@@ -84,17 +84,20 @@ public class HttpVertxlet implements Vertxlet {
     }
 
     /**
-     * Like {@link #init(Future<Void>)} but simple and safely for synchronous tasks
+     * Like {@link #init(Future)} but simple and safely for synchronous tasks
      */
-    protected void init() {}
+    protected void init() {
+    }
 
     /**
-     * Like {@link #destroy(Future<Void>)} but simple and safely for synchronous tasks
+     * Like {@link #destroy(Future)} but simple and safely for synchronous tasks
      */
-    protected void destroy() {}
+    protected void destroy() {
+    }
 
     /**
      * Specify to handle Http GET request
+     *
      * @param routingContext the Http routing context
      */
     protected void doGet(RoutingContext routingContext) {
@@ -103,6 +106,7 @@ public class HttpVertxlet implements Vertxlet {
 
     /**
      * Specify to handle Http POST request
+     *
      * @param routingContext the Http routing context
      */
     protected void doPost(RoutingContext routingContext) {
@@ -113,9 +117,10 @@ public class HttpVertxlet implements Vertxlet {
      * Simple and safely to execute heavy tasks (blocking codes).<p>
      * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
      * When the code is complete the handler {@code handler} will be called<p>
-     * @param task heavy task representing the blocking code to run
+     *
+     * @param task    heavy task representing the blocking code to run
      * @param handler handle will be called when the heavy task execute done
-     * @param <T> the type of the result
+     * @param <T>     the type of the result
      */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler) {
         executingHeavyTask(task, handler, false);
@@ -125,12 +130,13 @@ public class HttpVertxlet implements Vertxlet {
      * Simple and safely to execute heavy tasks (blocking codes).<p>
      * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
      * When the code is complete the handler {@code handler} will be called<p>
-     * @param task heavy task representing the blocking code to run
+     *
+     * @param task    heavy task representing the blocking code to run
      * @param handler handle will be called when the heavy task execute done
      * @param ordered if true then if executeBlocking is called several times on the same context,
      *                the executions for that context will be executed serially, not in parallel.
      *                if false then they will be no ordering guarantees
-     * @param <T> the type of the result
+     * @param <T>     the type of the result
      */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler, boolean ordered) {
         vertx.executeBlocking(future -> {
@@ -145,6 +151,7 @@ public class HttpVertxlet implements Vertxlet {
 
     /**
      * Executes some codes in event loop at time in the future
+     *
      * @param runnable representing the code to run
      */
     protected void post(Runnable runnable) {
@@ -153,8 +160,9 @@ public class HttpVertxlet implements Vertxlet {
 
     /**
      * Executes some codes in event loop after {@code delay} milliseconds
+     *
      * @param runnable representing the code to run
-     * @param delay the delay in milliseconds, after which the runnable will execute
+     * @param delay    the delay in milliseconds, after which the runnable will execute
      */
     protected void postDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
@@ -163,6 +171,7 @@ public class HttpVertxlet implements Vertxlet {
     /**
      * Get SqlConnection instance if the vertxlet is declared with
      * {@link com.admicro.vertx.core.Vertxlet} is true
+     *
      * @param routingContext the current Http routing context instance
      * @return the Sql connection
      * @throws UnsupportedOperationException
