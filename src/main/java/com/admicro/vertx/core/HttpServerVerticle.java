@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * @author anhtn
  */
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -23,13 +23,20 @@ public class HttpServerVerticle extends AbstractVerticle {
     static final int DEFAULT_HTTP_PORT = 8888;
     static final String WAN_ADDRESS = "0.0.0.0";
 
-    private final Map<String, IHttpVertxlet> mappingUrls = new HashMap<>();
+    private final Map<String, Vertxlet> mappingUrls = new HashMap<>();
     private Logger logger;
 
+    /**
+     *
+     * @param options
+     */
     public HttpServerVerticle(ServerOptions options) {
         logger = LoggerFactory.getLogger(this.getClass());
     }
 
+    /**
+     *
+     */
     public HttpServerVerticle() {
         this(null);
     }
@@ -77,16 +84,16 @@ public class HttpServerVerticle extends AbstractVerticle {
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
 
-        for (Class<?> clazz : reflections.getSubTypesOf(IHttpVertxlet.class)) {
+        for (Class<?> clazz : reflections.getSubTypesOf(Vertxlet.class)) {
             if (!clazz.isAnnotationPresent(VertxServlet.class)) continue;
 
             for (String url : clazz.getAnnotation(VertxServlet.class).url()) {
-                IHttpVertxlet servlet;
+                Vertxlet servlet;
                 if (!mappingUrls.containsKey(url)) {
-                    servlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
+                    servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
                     servlet.setContext(vertx, this);
 
-                    System.out.println(String.format("Mapping url %s with class %s", url, clazz.getName()));
+                    logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                     mappingUrls.put(url, servlet);
                 } else {
                     servlet = mappingUrls.get(url);

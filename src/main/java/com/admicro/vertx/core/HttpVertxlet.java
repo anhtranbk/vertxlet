@@ -9,7 +9,10 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 
-public class HttpVertxlet implements IHttpVertxlet {
+/**
+ * @author anhtn
+ */
+public class HttpVertxlet implements Vertxlet {
 
     private Vertx vertx;
     private Verticle verticle;
@@ -72,30 +75,63 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     @Override
-    public Vertx getVertx() {
+    public final Vertx getVertx() {
         return vertx;
     }
 
-    public Verticle getVerticle() {
+    public final Verticle getVerticle() {
         return verticle;
     }
 
+    /**
+     * Like {@link #init(Future<Void>)} but simple and safely for synchronous tasks
+     */
     protected void init() {}
 
+    /**
+     * Like {@link #destroy(Future<Void>)} but simple and safely for synchronous tasks
+     */
     protected void destroy() {}
 
+    /**
+     * Specify to handle Http GET request
+     * @param routingContext the Http routing context
+     */
     protected void doGet(RoutingContext routingContext) {
         routingContext.response().end();
     }
 
+    /**
+     * Specify to handle Http POST request
+     * @param routingContext the Http routing context
+     */
     protected void doPost(RoutingContext routingContext) {
         routingContext.response().end();
     }
 
+    /**
+     * Simple and safely to execute heavy tasks (blocking codes).<p>
+     * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
+     * When the code is complete the handler {@code handler} will be called<p>
+     * @param task heavy task representing the blocking code to run
+     * @param handler handle will be called when the heavy task execute done
+     * @param <T> the type of the result
+     */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler) {
         executingHeavyTask(task, handler, false);
     }
 
+    /**
+     * Simple and safely to execute heavy tasks (blocking codes).<p>
+     * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
+     * When the code is complete the handler {@code handler} will be called<p>
+     * @param task heavy task representing the blocking code to run
+     * @param handler handle will be called when the heavy task execute done
+     * @param ordered if true then if executeBlocking is called several times on the same context,
+     *                the executions for that context will be executed serially, not in parallel.
+     *                if false then they will be no ordering guarantees
+     * @param <T> the type of the result
+     */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler, boolean ordered) {
         vertx.executeBlocking(future -> {
             try {
@@ -107,15 +143,33 @@ public class HttpVertxlet implements IHttpVertxlet {
         }, ordered, handler);
     }
 
+    /**
+     * Executes some codes in event loop at time in the future
+     * @param runnable representing the code to run
+     */
     protected void post(Runnable runnable) {
         postDelay(runnable, 0);
     }
 
+    /**
+     * Executes some codes in event loop after {@code delay} milliseconds
+     * @param runnable representing the code to run
+     * @param delay the delay in milliseconds, after which the runnable will execute
+     */
     protected void postDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
     }
 
-    protected SQLConnection getSqlConnection(RoutingContext routingContext) throws UnsupportedOperationException {
+    /**
+     * Get SqlConnection instance if the vertxlet is declared with
+     * {@link com.admicro.vertx.core.Vertxlet} is true
+     * @param routingContext the current Http routing context instance
+     * @return the Sql connection
+     * @throws UnsupportedOperationException
+     */
+    protected final SQLConnection getSqlConnection(RoutingContext routingContext)
+            throws UnsupportedOperationException {
+
         SQLConnection con = routingContext.get("db");
         if (con == null) {
             UnsupportedOperationException e = new UnsupportedOperationException(
