@@ -1,5 +1,7 @@
 package com.admicro.vertx.core;
 
+import com.admicro.vertx.utils.ServerOptions;
+import com.admicro.vertx.utils.ServerOptionsFactory;
 import com.admicro.vertx.utils.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -17,21 +19,17 @@ import java.util.Map;
 public class HttpServerVerticle extends AbstractVerticle {
 
     static final String ROOT_PATH = "/*";
-    static final int DEFAULT_HTTP_PORT = 8888;
-    static final String WAN_ADDRESS = "0.0.0.0";
 
     private final Map<String, Vertxlet> mappingUrls = new HashMap<>();
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private ServerOptions options;
 
-    /**
-     * @param options
-     */
     public HttpServerVerticle(ServerOptions options) {
-        logger = LoggerFactory.getLogger(this.getClass());
+        this.options = options;
     }
 
     public HttpServerVerticle() {
-        this(null);
+        this.options = ServerOptionsFactory.defaultServerOption(vertx);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         }
 
         HttpServer server = vertx.createHttpServer();
-        server.requestHandler(router::accept).listen(DEFAULT_HTTP_PORT, WAN_ADDRESS, result -> {
+        server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), result -> {
             if (result.succeeded()) {
                 startFuture.complete();
             } else {

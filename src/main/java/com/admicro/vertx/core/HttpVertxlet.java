@@ -33,11 +33,6 @@ public class HttpVertxlet implements Vertxlet {
         future.complete();
     }
 
-    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://localhost/server_load";
-    static final String USER = "root";
-    static final String PASS = "root";
-
     @Override
     public void handle(RoutingContext routingContext) {
         if (getClass().getAnnotation(VertxServlet.class).usingDatabase()) {
@@ -48,7 +43,8 @@ public class HttpVertxlet implements Vertxlet {
                     .put("password", PASS)
                     .put("max_pool_size", 50);
 
-            JDBCClient client = JDBCClient.createShared(vertx, config);
+            JsonObject config = routingContext.get("config");
+            JDBCClient client = JDBCClient.createShared(vertx, config.getJsonObject("database"));
 
             client.getConnection(result -> {
                 if (result.failed()) {
