@@ -5,9 +5,6 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
-/**
- * @author anhtn
- */
 public interface Vertxlet {
 
     /**

@@ -9,9 +9,6 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 
-/**
- * @author anhtn
- */
 public class HttpVertxlet implements Vertxlet {
 
     private Vertx vertx;

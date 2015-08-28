@@ -14,9 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author anhtn
- */
 public class HttpServerVerticle extends AbstractVerticle {
 
     static final String ROOT_PATH = "/*";
