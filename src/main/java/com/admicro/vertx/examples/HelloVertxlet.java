@@ -11,7 +11,7 @@ public class HelloVertxlet extends HttpVertxlet {
     protected void doGet(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if (id != null) {
-            routingContext.response().end("id=" + id);
+            routingContext.response().end("Hello, id=" + id);
         } else {
             routingContext.response().end("Hello, current path: " + routingContext.request().path());
         }
