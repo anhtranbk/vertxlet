@@ -1,12 +1,16 @@
 package com.admicro.vertx;
 
-import com.admicro.vertx.core.HttpServerVerticle;
-import io.vertx.core.Vertx;
+import com.admicro.vertx.core.HttpServer;
+import com.admicro.vertx.core.HttpServerContext;
+import com.admicro.vertx.core.VertxletException;
 
 public class Runner {
 
     public static void main(String[] args) {
-        Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new HttpServerVerticle());
+        try {
+            HttpServer.startNew(HttpServerContext.defaultContext());
+        } catch (VertxletException e) {
+            e.printStackTrace();
+        }
     }
 }

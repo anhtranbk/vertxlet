@@ -36,15 +36,8 @@ public class HttpVertxlet implements Vertxlet {
     @Override
     public void handle(RoutingContext routingContext) {
         if (getClass().getAnnotation(VertxServlet.class).usingDatabase()) {
-            JsonObject config = new JsonObject()
-                    .put("url", DB_URL)
-                    .put("driver_class", JDBC_DRIVER)
-                    .put("user", USER)
-                    .put("password", PASS)
-                    .put("max_pool_size", 50);
-
-            JsonObject config = routingContext.get("config");
-            JDBCClient client = JDBCClient.createShared(vertx, config.getJsonObject("database"));
+            System.out.println(getDatabaseConfig());
+            JDBCClient client = JDBCClient.createShared(vertx, getDatabaseConfig());
 
             client.getConnection(result -> {
                 if (result.failed()) {
@@ -76,61 +69,24 @@ public class HttpVertxlet implements Vertxlet {
         return verticle;
     }
 
-    /**
-     * Like {@link #init(Future)} but simple and safely for synchronous tasks
-     */
     protected void init() {
     }
 
-    /**
-     * Like {@link #destroy(Future)} but simple and safely for synchronous tasks
-     */
     protected void destroy() {
     }
 
-    /**
-     * Specify to handle Http GET request
-     *
-     * @param routingContext the Http routing context
-     */
     protected void doGet(RoutingContext routingContext) {
         routingContext.response().end();
     }
 
-    /**
-     * Specify to handle Http POST request
-     *
-     * @param routingContext the Http routing context
-     */
     protected void doPost(RoutingContext routingContext) {
         routingContext.response().end();
     }
 
-    /**
-     * Simple and safely to execute heavy tasks (blocking codes).<p>
-     * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
-     * When the code is complete the handler {@code handler} will be called<p>
-     *
-     * @param task    heavy task representing the blocking code to run
-     * @param handler handle will be called when the heavy task execute done
-     * @param <T>     the type of the result
-     */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler) {
         executingHeavyTask(task, handler, false);
     }
 
-    /**
-     * Simple and safely to execute heavy tasks (blocking codes).<p>
-     * Executes the blocking code in the handler {@code task} using a thread from the worker pool.<p>
-     * When the code is complete the handler {@code handler} will be called<p>
-     *
-     * @param task    heavy task representing the blocking code to run
-     * @param handler handle will be called when the heavy task execute done
-     * @param ordered if true then if executeBlocking is called several times on the same context,
-     *                the executions for that context will be executed serially, not in parallel.
-     *                if false then they will be no ordering guarantees
-     * @param <T>     the type of the result
-     */
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler, boolean ordered) {
         vertx.executeBlocking(future -> {
             try {
@@ -142,33 +98,14 @@ public class HttpVertxlet implements Vertxlet {
         }, ordered, handler);
     }
 
-    /**
-     * Executes some codes in event loop at time in the future
-     *
-     * @param runnable representing the code to run
-     */
     protected void post(Runnable runnable) {
         postDelay(runnable, 0);
     }
 
-    /**
-     * Executes some codes in event loop after {@code delay} milliseconds
-     *
-     * @param runnable representing the code to run
-     * @param delay    the delay in milliseconds, after which the runnable will execute
-     */
     protected void postDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
     }
 
-    /**
-     * Get SqlConnection instance if the vertxlet is declared with
-     * {@link com.admicro.vertx.core.Vertxlet} is true
-     *
-     * @param routingContext the current Http routing context instance
-     * @return the Sql connection
-     * @throws UnsupportedOperationException
-     */
     protected final SQLConnection getSqlConnection(RoutingContext routingContext)
             throws UnsupportedOperationException {
 
@@ -181,6 +118,11 @@ public class HttpVertxlet implements Vertxlet {
         }
 
         return con;
+    }
+
+    private JsonObject getDatabaseConfig() {
+        return (JsonObject) vertx.sharedData().getLocalMap(
+                HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
     }
 
     private void routeByMethod(RoutingContext routingContext) {

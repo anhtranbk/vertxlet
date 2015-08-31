@@ -1,7 +1,5 @@
 package com.admicro.vertx.core;
 
-import com.admicro.vertx.utils.ServerOptions;
-import com.admicro.vertx.utils.ServerOptionsFactory;
 import com.admicro.vertx.utils.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -19,17 +17,14 @@ import java.util.Map;
 public class HttpServerVerticle extends AbstractVerticle {
 
     static final String ROOT_PATH = "/*";
+    static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
 
     private final Map<String, Vertxlet> mappingUrls = new HashMap<>();
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private ServerOptions options;
 
     public HttpServerVerticle(ServerOptions options) {
         this.options = options;
-    }
-
-    public HttpServerVerticle() {
-        this.options = ServerOptionsFactory.defaultServerOption(vertx);
     }
 
     @Override

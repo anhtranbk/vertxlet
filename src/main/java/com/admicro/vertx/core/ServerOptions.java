@@ -1,4 +1,4 @@
-package com.admicro.vertx.utils;
+package com.admicro.vertx.core;
 
 import io.vertx.core.json.JsonObject;
 
@@ -11,11 +11,10 @@ public class ServerOptions {
     private String address = DEFAULT_ADDRESS;
 
     public ServerOptions() {
-
     }
 
     public ServerOptions(JsonObject json) {
-        port = json.getInteger("port", DEFAULT_PORT);
+        port = json.containsKey("port") ? Integer.parseInt(json.getString("port")) : DEFAULT_PORT;
         address = json.getString("address", DEFAULT_ADDRESS);
     }
 
@@ -23,15 +22,17 @@ public class ServerOptions {
         return address;
     }
 
-    public void setAddress(String address) {
+    public ServerOptions setAddress(String address) {
         this.address = address;
+        return this;
     }
 
     public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public ServerOptions setPort(int port) {
         this.port = port;
+        return this;
     }
 }
