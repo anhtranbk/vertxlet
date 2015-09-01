@@ -39,7 +39,13 @@ public class XmlConverter {
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             Node firstNode = node.getFirstChild();
             if (firstNode != null && firstNode.getNodeType() == Node.TEXT_NODE) {
-                rootObject.put(node.getNodeName(), firstNode.getTextContent());
+                String text = firstNode.getTextContent();
+                try {
+                    Integer integer = Integer.valueOf(text);
+                    rootObject.put(node.getNodeName(), integer);
+                } catch (NumberFormatException e) {
+                    rootObject.put(node.getNodeName(), text);
+                }
                 return;
             }
 

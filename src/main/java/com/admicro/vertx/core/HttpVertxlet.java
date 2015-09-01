@@ -36,7 +36,6 @@ public class HttpVertxlet implements Vertxlet {
     @Override
     public void handle(RoutingContext routingContext) {
         if (getClass().getAnnotation(VertxServlet.class).usingDatabase()) {
-            System.out.println(getDatabaseConfig());
             JDBCClient client = JDBCClient.createShared(vertx, getDatabaseConfig());
 
             client.getConnection(result -> {

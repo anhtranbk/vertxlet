@@ -14,7 +14,7 @@ public class ServerOptions {
     }
 
     public ServerOptions(JsonObject json) {
-        port = json.containsKey("port") ? Integer.parseInt(json.getString("port")) : DEFAULT_PORT;
+        port = json.getInteger("port", DEFAULT_PORT);
         address = json.getString("address", DEFAULT_ADDRESS);
     }
 
