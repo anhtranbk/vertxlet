@@ -1,10 +1,10 @@
 package com.admicro.vertx.examples;
 
 import com.admicro.vertx.core.HttpVertxlet;
-import com.admicro.vertx.core.VertxServlet;
+import com.admicro.vertx.core.VertxletRequestMapping;
 import io.vertx.ext.web.RoutingContext;
 
-@VertxServlet(url = {"/hello/:id", "/dspFake/dsp"})
+@VertxletRequestMapping(url = {"/hello/:id"})
 public class HelloVertxlet extends HttpVertxlet {
 
     @Override

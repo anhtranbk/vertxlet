@@ -1,12 +1,12 @@
 package com.admicro.vertx.examples;
 
 import com.admicro.vertx.core.HttpVertxlet;
-import com.admicro.vertx.core.VertxServlet;
+import com.admicro.vertx.core.VertxletRequestMapping;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 
-@VertxServlet(url = "/id/:id", usingDatabase = true)
+@VertxletRequestMapping(url = "/id/:id", usingDatabase = true)
 public class TestJdbcVertxlet extends HttpVertxlet {
 
     @Override

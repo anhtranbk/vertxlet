@@ -1,10 +1,10 @@
 package com.admicro.vertx.examples;
 
 import com.admicro.vertx.core.HttpVertxlet;
-import com.admicro.vertx.core.VertxServlet;
+import com.admicro.vertx.core.VertxletRequestMapping;
 import io.vertx.ext.web.RoutingContext;
 
-@VertxServlet(url = {"/delay/:delay"})
+@VertxletRequestMapping(url = {"/delay/:delay"})
 public class TestDelayVertxlet extends HttpVertxlet {
 
     @Override

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface VertxServlet {
+public @interface VertxletRequestMapping {
 
     String[] url();
     int loadOnStartup() default 100;

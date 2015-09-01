@@ -72,9 +72,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         final Reflections reflections = new Reflections("");
 
         for (Class<?> clazz : reflections.getSubTypesOf(Vertxlet.class)) {
-            if (!clazz.isAnnotationPresent(VertxServlet.class)) continue;
-
-            for (String url : clazz.getAnnotation(VertxServlet.class).url()) {
+            for (String url : clazz.getAnnotation(VertxletRequestMapping.class).url()) {
                 Vertxlet servlet;
                 if (!mappingUrls.containsKey(url)) {
                     servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);

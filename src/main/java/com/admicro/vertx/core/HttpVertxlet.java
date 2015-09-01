@@ -1,6 +1,10 @@
 package com.admicro.vertx.core;
 
-import io.vertx.core.*;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -35,7 +39,7 @@ public class HttpVertxlet implements Vertxlet {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        if (getClass().getAnnotation(VertxServlet.class).usingDatabase()) {
+        if (getClass().getAnnotation(VertxletRequestMapping.class).usingDatabase()) {
             JDBCClient client = JDBCClient.createShared(vertx, getDatabaseConfig());
 
             client.getConnection(result -> {
@@ -97,10 +101,6 @@ public class HttpVertxlet implements Vertxlet {
         }, ordered, handler);
     }
 
-    protected void post(Runnable runnable) {
-        postDelay(runnable, 0);
-    }
-
     protected void postDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
     }
@@ -115,7 +115,6 @@ public class HttpVertxlet implements Vertxlet {
             logger.error(e.getMessage(), e);
             throw e;
         }
-
         return con;
     }
 
