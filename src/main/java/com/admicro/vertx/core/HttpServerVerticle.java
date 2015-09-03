@@ -60,6 +60,8 @@ public class HttpServerVerticle extends AbstractVerticle {
                 HttpServer server = vertx.createHttpServer();
                 server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), res -> {
                     if (res.succeeded()) {
+                        logger.info(String.format("Http server started at [%s:%d]",
+                                options.getAddress(), options.getPort()));
                         startFuture.complete();
                     } else {
                         startFuture.fail(res.cause());
@@ -75,6 +77,11 @@ public class HttpServerVerticle extends AbstractVerticle {
     @Override
     public void stop(Future<Void> stopFuture) throws Exception {
         AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        if (count.get() <= 0) {
+            stopFuture.complete();
+            return;
+        }
+
         for (String key : mappingUrls.keySet()) {
             Future<Void> future = Future.future();
             vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).destroy(future));
@@ -111,6 +118,11 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void callInitVertxlet(Future<Void> initFuture) {
         AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        if (count.get() <= 0) {
+            initFuture.complete();
+            return;
+        }
+
         for (String key : mappingUrls.keySet()) {
             Future<Integer> future = Future.future();
             vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).init(future));
