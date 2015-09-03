@@ -6,7 +6,7 @@
 
   <groupId>com.admicro</groupId>
   <artifactId>vert-servlet-wrapper</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <dependencies>
     <dependency>
