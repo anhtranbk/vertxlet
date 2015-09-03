@@ -5,6 +5,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -117,13 +118,11 @@ public class HttpVertxlet implements Vertxlet {
         vertx.setTimer(delay, id -> runnable.run());
     }
 
-    protected SQLConnection getSqlConnection(RoutingContext routingContext)
-            throws UnsupportedOperationException {
+    protected SQLConnection getSqlConnection(RoutingContext routingContext) throws VertxException {
 
         SQLConnection con = routingContext.get("db");
         if (con == null) {
-            UnsupportedOperationException e = new UnsupportedOperationException(
-                    "Vertxlet was not declared using database");
+            VertxException e = new VertxException("Vertxlet was not declared using database");
             logger.error(e.getMessage(), e);
             throw e;
         }
