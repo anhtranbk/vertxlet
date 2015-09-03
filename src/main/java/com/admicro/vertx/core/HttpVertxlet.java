@@ -39,6 +39,7 @@ public class HttpVertxlet implements Vertxlet {
     public <T> void destroy(Future<T> future) {
         try {
             destroy();
+            future.complete();
         } catch (Exception e) {
             future.fail(e);
         }
