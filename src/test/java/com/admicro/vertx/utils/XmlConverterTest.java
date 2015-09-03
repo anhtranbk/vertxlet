@@ -52,6 +52,6 @@ public class XmlConverterTest {
         assertEquals(database.getString("url"), "jdbc:mysql://localhost/server_load");
         assertEquals(database.getString("user"), "root");
         assertEquals(database.getString("password"), "root");
-        assertEquals(database.getString("max_pool_size"), "30");
+        assertEquals(database.getInteger("max_pool_size"), (Integer) 30);
     }
 }
