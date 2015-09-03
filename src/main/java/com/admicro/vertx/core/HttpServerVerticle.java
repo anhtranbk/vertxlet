@@ -100,17 +100,19 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
-
-        for (Class<?> clazz : reflections.getSubTypesOf(Vertxlet.class)) {
-            if (!clazz.isAnnotationPresent(VertxletRequestMapping.class)) continue;
+        for (Class<?> clazz : reflections.getTypesAnnotatedWith(VertxletRequestMapping.class)) {
+            Vertxlet servlet;
+            try {
+                servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
+                servlet.setContext(vertx, this);
+            } catch (ClassCastException e) {
+                logger.error(e.getMessage(), e);
+                continue;
+            }
 
             for (String url : clazz.getAnnotation(VertxletRequestMapping.class).url()) {
-                Vertxlet servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
-                servlet.setContext(vertx, this);
-
                 logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                 mappingUrls.put(url, servlet);
-
                 router.route(url).handler(servlet::handle);
             }
         }
