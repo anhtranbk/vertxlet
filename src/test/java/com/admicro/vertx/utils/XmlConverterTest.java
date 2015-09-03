@@ -28,30 +28,29 @@ public class XmlConverterTest {
         builder.append("<vertx_options></vertx_options>\n");
         builder.append("</server>");
 
-        JsonObject server = null;
         try {
-            server = XmlConverter.toJson(builder.toString(), "server").getJsonObject("server");
+            JsonObject server = XmlConverter.toJson(builder.toString(), "server").getJsonObject("server");
+
+            JsonObject serverOptions = server.getJsonObject("server_options");
+            JsonObject database = server.getJsonObject("database");
+            JsonObject deploymentOptions = server.getJsonObject("deployment_options");
+            JsonObject vertxOptions = server.getJsonObject("vertx_options");
+
+            assertTrue(serverOptions != null);
+            assertTrue(database != null);
+            assertTrue(deploymentOptions != null);
+            assertTrue(vertxOptions != null);
+
+            assertEquals(serverOptions.getString("address"), "0.0.0.0");
+            assertEquals(serverOptions.getInteger("port"), (Integer) 888);
+
+            assertEquals(database.getString("driver_class"), "com.mysql.jdbc.Driver");
+            assertEquals(database.getString("url"), "jdbc:mysql://localhost/server_load");
+            assertEquals(database.getString("user"), "root");
+            assertEquals(database.getString("password"), "root");
+            assertEquals(database.getInteger("max_pool_size"), (Integer) 30);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-
-        JsonObject serverOptions = server.getJsonObject("server_options");
-        JsonObject database = server.getJsonObject("database");
-        JsonObject deploymentOptions = server.getJsonObject("deployment_options");
-        JsonObject vertxOptions = server.getJsonObject("vertx_options");
-
-        assertTrue(serverOptions != null);
-        assertTrue(database != null);
-        assertTrue(deploymentOptions != null);
-        assertTrue(vertxOptions != null);
-
-        assertEquals(serverOptions.getString("address"), "0.0.0.0");
-        assertEquals(serverOptions.getInteger("port"), (Integer) 8888);
-
-        assertEquals(database.getString("driver_class"), "com.mysql.jdbc.Driver");
-        assertEquals(database.getString("url"), "jdbc:mysql://localhost/server_load");
-        assertEquals(database.getString("user"), "root");
-        assertEquals(database.getString("password"), "root");
-        assertEquals(database.getInteger("max_pool_size"), (Integer) 30);
     }
 }
