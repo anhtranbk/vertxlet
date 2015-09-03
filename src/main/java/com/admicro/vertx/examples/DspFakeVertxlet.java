@@ -13,12 +13,22 @@ import java.nio.charset.Charset;
 public class DspFakeVertxlet extends HttpVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) {
+    protected void init() throws Exception {
+//        Thread.sleep(1000);
+    }
+
+    @Override
+    protected void destroy() throws Exception {
+//        Thread.sleep(1000);
+    }
+
+    @Override
+    protected void doGet(RoutingContext routingContext) throws Exception {
         routingContext.response().end("Hello World!");
     }
 
     @Override
-    protected void doPost(RoutingContext routingContext) {
+    protected void doPost(RoutingContext routingContext) throws Exception {
         final HttpServerResponse response = routingContext.response();
         response.putHeader("content-type", "application/json");
         response.putHeader("charset", "utf-8");

@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface VertxletRequestMapping {
 
-    String[] url();
+    String[] url() default {};
     int loadOnStartup() default 100;
     boolean usingDatabase() default false;
 }

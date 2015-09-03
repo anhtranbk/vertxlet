@@ -13,6 +13,7 @@ import org.reflections.Reflections;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -53,39 +54,76 @@ public class HttpServerVerticle extends AbstractVerticle {
             return;
         }
 
-        HttpServer server = vertx.createHttpServer();
-        server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), result -> {
-            if (result.succeeded()) {
-                startFuture.complete();
+        Future<Void> initFuture = Future.future();
+        initFuture.setHandler(ar -> {
+            if (ar.succeeded()) {
+                HttpServer server = vertx.createHttpServer();
+                server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), res -> {
+                    if (res.succeeded()) {
+                        startFuture.complete();
+                    } else {
+                        startFuture.fail(res.cause());
+                    }
+                });
             } else {
-                startFuture.fail(result.cause());
+                startFuture.fail(ar.cause());
             }
         });
+        callInitVertxlet(initFuture);
     }
 
     @Override
     public void stop(Future<Void> stopFuture) throws Exception {
-        stopFuture.complete();
+        AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        for (String key : mappingUrls.keySet()) {
+            Future<Void> future = Future.future();
+            vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).destroy(future));
+            future.setHandler(ar -> {
+                if (ar.succeeded()) {
+                    if (count.decrementAndGet() == 0) {
+                        logger.info("All vertxlet destroy succeeded");
+                        stopFuture.complete();
+                    }
+                } else {
+                    stopFuture.fail(ar.cause());
+                }
+            });
+        }
     }
 
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
 
         for (Class<?> clazz : reflections.getSubTypesOf(Vertxlet.class)) {
-            for (String url : clazz.getAnnotation(VertxletRequestMapping.class).url()) {
-                Vertxlet servlet;
-                if (!mappingUrls.containsKey(url)) {
-                    servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
-                    servlet.setContext(vertx, this);
+            if (!clazz.isAnnotationPresent(VertxletRequestMapping.class)) continue;
 
-                    logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
-                    mappingUrls.put(url, servlet);
-                } else {
-                    servlet = mappingUrls.get(url);
-                }
+            for (String url : clazz.getAnnotation(VertxletRequestMapping.class).url()) {
+                Vertxlet servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
+                servlet.setContext(vertx, this);
+
+                logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
+                mappingUrls.put(url, servlet);
 
                 router.route(url).handler(servlet::handle);
             }
+        }
+    }
+
+    private void callInitVertxlet(Future<Void> initFuture) {
+        AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        for (String key : mappingUrls.keySet()) {
+            Future<Integer> future = Future.future();
+            vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).init(future));
+            future.setHandler(ar -> {
+                if (ar.succeeded()) {
+                    if (count.decrementAndGet() == 0) {
+                        logger.info("All vertxlet init succeeded");
+                        initFuture.complete();
+                    }
+                } else {
+                    initFuture.fail(ar.cause());
+                }
+            });
         }
     }
 }

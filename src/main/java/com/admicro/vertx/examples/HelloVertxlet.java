@@ -8,7 +8,7 @@ import io.vertx.ext.web.RoutingContext;
 public class HelloVertxlet extends HttpVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) {
+    protected void doGet(RoutingContext routingContext) throws Exception {
         String id = routingContext.request().getParam("id");
         if (id != null) {
             routingContext.response().end("Hello, id=" + id);
@@ -18,7 +18,7 @@ public class HelloVertxlet extends HttpVertxlet {
     }
 
     @Override
-    protected void doPost(RoutingContext routingContext) {
+    protected void doPost(RoutingContext routingContext) throws Exception {
         super.doPost(routingContext);
     }
 }

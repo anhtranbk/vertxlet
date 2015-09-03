@@ -9,11 +9,11 @@ public interface Vertxlet {
 
     void setContext(Vertx vertx, Verticle verticle);
 
-    default void init(Future<Void> future) throws Exception {
+    default <T> void init(Future<T> future) {
         future.complete();
     }
 
-    default void destroy(Future<Void> future) throws Exception {
+    default <T> void destroy(Future<T> future) {
         future.complete();
     }
 

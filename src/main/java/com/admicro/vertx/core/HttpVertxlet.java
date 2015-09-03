@@ -26,15 +26,22 @@ public class HttpVertxlet implements Vertxlet {
     }
 
     @Override
-    public void init(Future<Void> future) {
-        init();
-        future.complete();
+    public <T> void init(Future<T> future) {
+        try {
+            init();
+            future.complete();
+        } catch (Exception e) {
+            future.fail(e);
+        }
     }
 
     @Override
-    public void destroy(Future<Void> future) {
-        destroy();
-        future.complete();
+    public <T> void destroy(Future<T> future) {
+        try {
+            destroy();
+        } catch (Exception e) {
+            future.fail(e);
+        }
     }
 
     @Override
@@ -42,11 +49,11 @@ public class HttpVertxlet implements Vertxlet {
         if (getClass().getAnnotation(VertxletRequestMapping.class).usingDatabase()) {
             JDBCClient client = JDBCClient.createShared(vertx, getDatabaseConfig());
 
-            client.getConnection(result -> {
-                if (result.failed()) {
-                    routingContext.fail(result.cause());
+            client.getConnection(ar -> {
+                if (ar.failed()) {
+                    routingContext.fail(ar.cause());
                 } else {
-                    SQLConnection con = result.result();
+                    SQLConnection con = ar.result();
                     routingContext.put("db", con);
                     routingContext.addHeadersEndHandler(future -> con.close(v -> {
                         if (v.failed()) {
@@ -72,17 +79,17 @@ public class HttpVertxlet implements Vertxlet {
         return verticle;
     }
 
-    protected void init() {
+    protected void init() throws Exception {
     }
 
-    protected void destroy() {
+    protected void destroy() throws Exception {
     }
 
-    protected void doGet(RoutingContext routingContext) {
+    protected void doGet(RoutingContext routingContext) throws Exception {
         routingContext.response().end();
     }
 
-    protected void doPost(RoutingContext routingContext) {
+    protected void doPost(RoutingContext routingContext) throws Exception {
         routingContext.response().end();
     }
 
@@ -101,11 +108,15 @@ public class HttpVertxlet implements Vertxlet {
         }, ordered, handler);
     }
 
+    protected void runOnSameContext(Runnable runnable) {
+        vertx.getOrCreateContext().runOnContext(v -> runnable.run());
+    }
+
     protected void postDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
     }
 
-    protected final SQLConnection getSqlConnection(RoutingContext routingContext)
+    protected SQLConnection getSqlConnection(RoutingContext routingContext)
             throws UnsupportedOperationException {
 
         SQLConnection con = routingContext.get("db");
@@ -118,20 +129,28 @@ public class HttpVertxlet implements Vertxlet {
         return con;
     }
 
+    protected void routeByMethod(RoutingContext routingContext) {
+        try {
+            if (routingContext.request().method() == HttpMethod.GET) {
+                doGet(routingContext);
+            } else if (routingContext.request().method() == HttpMethod.POST) {
+                doPost(routingContext);
+            } else {
+                UnsupportedOperationException e = new UnsupportedOperationException("Method not support");
+                logger.error(e.getMessage(), e);
+                throw e;
+            }
+        } catch (Exception e) {
+            if (e instanceof UnsupportedOperationException) {
+                throw (UnsupportedOperationException) e;
+            } else {
+                routingContext.fail(e);
+            }
+        }
+    }
+
     private JsonObject getDatabaseConfig() {
         return (JsonObject) vertx.sharedData().getLocalMap(
                 HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
-    }
-
-    private void routeByMethod(RoutingContext routingContext) {
-        if (routingContext.request().method() == HttpMethod.GET) {
-            doGet(routingContext);
-        } else if (routingContext.request().method() == HttpMethod.POST) {
-            doPost(routingContext);
-        } else {
-            UnsupportedOperationException e = new UnsupportedOperationException("Method not support");
-            logger.error(e.getMessage(), e);
-            throw e;
-        }
     }
 }

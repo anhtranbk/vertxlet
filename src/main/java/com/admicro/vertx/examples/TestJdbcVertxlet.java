@@ -10,7 +10,7 @@ import io.vertx.ext.web.RoutingContext;
 public class TestJdbcVertxlet extends HttpVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) {
+    protected void doGet(RoutingContext routingContext) throws Exception {
         SQLConnection con;
         int id;
         try {
