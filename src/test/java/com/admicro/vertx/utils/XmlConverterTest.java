@@ -42,7 +42,7 @@ public class XmlConverterTest {
             assertTrue(vertxOptions != null);
 
             assertEquals(serverOptions.getString("address"), "0.0.0.0");
-            assertEquals(serverOptions.getInteger("port"), (Integer) 888);
+            assertEquals(serverOptions.getInteger("port"), (Integer) 8888);
 
             assertEquals(database.getString("driver_class"), "com.mysql.jdbc.Driver");
             assertEquals(database.getString("url"), "jdbc:mysql://localhost/server_load");
