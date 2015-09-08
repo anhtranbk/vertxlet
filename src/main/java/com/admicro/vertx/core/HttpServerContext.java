@@ -7,11 +7,6 @@ public interface HttpServerContext {
     String configurationPath();
 
     static HttpServerContext defaultContext() {
-        return new HttpServerContext() {
-            @Override
-            public String configurationPath() {
-                return "server.xml";
-            }
-        };
+        return () -> "server.xml";
     }
 }
