@@ -5,7 +5,7 @@ import com.admicro.vertx.core.VertxletRequestMapping;
 import io.vertx.ext.web.RoutingContext;
 
 @VertxletRequestMapping(url = {"/delay/:delay"})
-public class TestDelayVertxlet extends HttpVertxlet {
+public class DelayVertxletExamples extends HttpVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {

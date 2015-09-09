@@ -5,7 +5,7 @@ import com.admicro.vertx.core.VertxletRequestMapping;
 import io.vertx.ext.web.RoutingContext;
 
 @VertxletRequestMapping(url = {"/hello/:id"})
-public class HelloVertxlet extends HttpVertxlet {
+public class HelloVertxletExamples extends HttpVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {
