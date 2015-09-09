@@ -102,7 +102,7 @@ public class HttpVertxlet implements Vertxlet {
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler, boolean ordered) {
         vertx.executeBlocking(future -> {
             try {
-                T result = task.run();
+                T result = task.doTask();
                 future.complete(result);
             } catch (Exception e) {
                 future.fail(e);
@@ -110,11 +110,11 @@ public class HttpVertxlet implements Vertxlet {
         }, ordered, handler);
     }
 
-    protected void runOnSameContext(Runnable runnable) {
+    protected void runOnSameEventLoop(Runnable runnable) {
         vertx.getOrCreateContext().runOnContext(v -> runnable.run());
     }
 
-    protected void postDelay(Runnable runnable, long delay) {
+    protected void runDelay(Runnable runnable, long delay) {
         vertx.setTimer(delay, id -> runnable.run());
     }
 
