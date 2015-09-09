@@ -13,11 +13,8 @@ import java.io.IOException;
 
 public interface HttpServer {
 
-    public static void startNew() {
-        HttpServerVerticle server = new HttpServerVerticle(new ServerOptions());
-        Vertx vertx = Vertx.vertx();
-
-        vertx.deployVerticle(server);
+    public static void startNew() throws VertxletException {
+        HttpServer.startNew(HttpServerContext.defaultContext());
     }
 
     public static void startNew(HttpServerContext serverContext) throws VertxletException {
