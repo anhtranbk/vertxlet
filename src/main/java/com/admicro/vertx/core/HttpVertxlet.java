@@ -95,6 +95,18 @@ public class HttpVertxlet implements Vertxlet {
         routingContext.response().end();
     }
 
+    protected void doPut(RoutingContext routingContext) throws Exception {
+        routingContext.response().end();
+    }
+
+    protected void doHead(RoutingContext routingContext) throws Exception {
+        routingContext.response().end();
+    }
+
+    protected void doDelete(RoutingContext routingContext) throws Exception {
+        routingContext.response().end();
+    }
+
     protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler) {
         executingHeavyTask(task, handler, false);
     }
@@ -135,6 +147,12 @@ public class HttpVertxlet implements Vertxlet {
                 doGet(routingContext);
             } else if (routingContext.request().method() == HttpMethod.POST) {
                 doPost(routingContext);
+            } else if (routingContext.request().method() == HttpMethod.PUT) {
+                doPut(routingContext);
+            } else if (routingContext.request().method() == HttpMethod.HEAD) {
+                doHead(routingContext);
+            } else if (routingContext.request().method() == HttpMethod.DELETE) {
+                doDelete(routingContext);
             } else {
                 UnsupportedOperationException e = new UnsupportedOperationException("Method not support");
                 logger.error(e.getMessage(), e);
