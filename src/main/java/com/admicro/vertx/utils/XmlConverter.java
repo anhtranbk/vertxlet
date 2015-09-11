@@ -41,8 +41,8 @@ public class XmlConverter {
             if (firstNode != null && firstNode.getNodeType() == Node.TEXT_NODE) {
                 String text = firstNode.getTextContent();
                 try {
-                    Integer integer = Integer.valueOf(text);
-                    rootObject.put(node.getNodeName(), integer);
+                    Long number = Long.parseLong(text);
+                    rootObject.put(node.getNodeName(), number);
                 } catch (NumberFormatException e) {
                     rootObject.put(node.getNodeName(), text);
                 }
