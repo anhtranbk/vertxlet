@@ -101,9 +101,6 @@ public class HttpServerVerticle extends AbstractVerticle {
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(VertxletRequestMapping.class)) {
-            final String className = clazz.getName();
-            if (className.startsWith("examples") && className.endsWith("Examples")) continue;
-
             Vertxlet servlet;
             try {
                 servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
