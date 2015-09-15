@@ -8,6 +8,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CookieHandler;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
-    static final String ROOT_PATH = "/*";
     static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
 
     private final Map<String, Vertxlet> mappingUrls = new HashMap<>();
@@ -32,8 +32,13 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
         Router router = Router.router(vertx);
 
-        router.route(ROOT_PATH).handler(routingContext -> {
+        router.route().handler(routingContext -> {
+            // Vert.x-Web has cookies support using the CookieHandler.
+            // Make sure a cookie handler is on a matching route for any requests
+            CookieHandler.create();
+
             routingContext.addHeadersEndHandler(Future::complete);
+            // Route this context to the next matching route (if any)
             routingContext.next();
         }).failureHandler(routingContext -> {
             SQLConnection con = routingContext.get("db");
