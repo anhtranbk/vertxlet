@@ -7,7 +7,7 @@ import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 
 @VertxletRequestMapping(url = "/id/:id", usingDatabase = true)
-public class JdbcVertxletExamples extends HttpVertxlet {
+public class JdbcExamples extends HttpVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {
