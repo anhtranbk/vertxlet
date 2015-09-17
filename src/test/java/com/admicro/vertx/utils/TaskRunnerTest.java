@@ -1,5 +1,6 @@
 package com.admicro.vertx.utils;
 
+import com.admicro.vertx.core.RunnableFuture;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
@@ -52,10 +53,37 @@ public class TaskRunnerTest {
         }, list.size(), ar -> {
             final Async async = context.async();
             if (ar.failed()) {
+                context.assertTrue(false);
             } else {
                 context.assertEquals(ai.get(), 6);
             }
             async.complete();
+        });
+    }
+
+    @Test
+    public void testRunListParallelTasks(TestContext context) {
+        AtomicInteger ai = new AtomicInteger(0);
+        List<RunnableFuture<Void>> rfs = new ArrayList<>();
+        rfs.add(fut -> {
+            ai.set(ai.get() + 3);
+            fut.complete();
+        });
+        rfs.add(fut -> {
+            ai.set(ai.get() + 4);
+            fut.complete();
+        });
+        rfs.add(fut -> {
+            ai.set(ai.get() + 5);
+            fut.complete();
+        });
+
+        TaskRunner.runListParallelTasks(rfs, ar -> {
+            if (ar.failed()) {
+                context.assertTrue(false);
+            } else {
+                context.assertEquals(ai.get(), 12);
+            }
         });
     }
 }

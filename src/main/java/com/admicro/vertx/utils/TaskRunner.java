@@ -5,6 +5,8 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,26 +19,11 @@ public class TaskRunner {
             return;
         }
 
-        AtomicInteger remainTasks = new AtomicInteger(count);
-        AtomicBoolean finish = new AtomicBoolean(false);
-
+        List<RunnableFuture<T>> rfs = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Future<T> fut = Future.future();
-            fut.setHandler(ar -> {
-                if (!finish.get()) {
-                    if (ar.failed()) {
-                        finish.set(true);
-                        handler.handle(Future.failedFuture(ar.cause()));
-                    } else {
-                        if (remainTasks.decrementAndGet() == 0) {
-                            finish.set(true);
-                            handler.handle(Future.succeededFuture());
-                        }
-                    }
-                }
-            });
-            rf.run(fut);
+            rfs.add(rf);
         }
+        runListParallelTasks(rfs, handler);
     }
 
     public static <T> void loopSequenceTasks(RunnableFuture<T> rf, int count,
@@ -59,5 +46,34 @@ public class TaskRunner {
             }
         });
         rf.run(fut);
+    }
+
+    public static <T> void runListParallelTasks(List<RunnableFuture<T>> rfs,
+                                                Handler<AsyncResult<Void>> handler) {
+        if (rfs.isEmpty()) {
+            handler.handle(Future.failedFuture("No tasks to run"));
+            return;
+        }
+
+        AtomicInteger remainTasks = new AtomicInteger(rfs.size());
+        AtomicBoolean finish = new AtomicBoolean(false);
+
+        for (RunnableFuture<T> rf : rfs) {
+            Future<T> fut = Future.future();
+            fut.setHandler(ar -> {
+                if (!finish.get()) {
+                    if (ar.failed()) {
+                        finish.set(true);
+                        handler.handle(Future.failedFuture(ar.cause()));
+                    } else {
+                        if (remainTasks.decrementAndGet() == 0) {
+                            finish.set(true);
+                            handler.handle(Future.succeededFuture());
+                        }
+                    }
+                }
+            });
+            rf.run(fut);
+        }
     }
 }
