@@ -96,7 +96,7 @@ public class HttpVertxlet implements IHttpVertxlet {
             }
         });
 
-        TaskRunner.runListParallelTasks(rfs, ar -> routeByMethod(routingContext));
+        TaskRunner.executeParallel(rfs, ar -> routeByMethod(routingContext));
     }
 
     @Override

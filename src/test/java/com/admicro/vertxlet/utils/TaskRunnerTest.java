@@ -46,7 +46,7 @@ public class TaskRunnerTest {
         Iterator<Integer> iterator = list.iterator();
         AtomicInteger ai = new AtomicInteger(0);
 
-        TaskRunner.loopParallelTasks(fut -> {
+        TaskRunner.loopParallel(fut -> {
             int val = iterator.next();
             ai.set(ai.get() + val);
             fut.complete();
@@ -78,7 +78,7 @@ public class TaskRunnerTest {
             fut.complete();
         });
 
-        TaskRunner.runListParallelTasks(rfs, ar -> {
+        TaskRunner.executeParallel(rfs, ar -> {
             if (ar.failed()) {
                 context.assertTrue(false);
             } else {

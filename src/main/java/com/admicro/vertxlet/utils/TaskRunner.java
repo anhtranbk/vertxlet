@@ -12,8 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskRunner {
 
-    public static <T> void loopParallelTasks(RunnableFuture<T> rf, int count,
-                                             Handler<AsyncResult<Void>> handler) {
+    public static <T> void loopParallel(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
             handler.handle(Future.failedFuture("No tasks to run"));
             return;
@@ -23,11 +22,10 @@ public class TaskRunner {
         for (int i = 0; i < count; i++) {
             rfs.add(rf);
         }
-        runListParallelTasks(rfs, handler);
+        executeParallel(rfs, handler);
     }
 
-    public static <T> void loopSequenceTasks(RunnableFuture<T> rf, int count,
-                                             Handler<AsyncResult<T>> handler) {
+    public static <T> void loopSequence(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
             handler.handle(Future.failedFuture("No tasks to run"));
             return;
@@ -41,15 +39,14 @@ public class TaskRunner {
                 if (count == 1) {
                     handler.handle(Future.succeededFuture());
                 } else {
-                    TaskRunner.loopSequenceTasks(rf, count - 1, handler);
+                    TaskRunner.loopSequence(rf, count - 1, handler);
                 }
             }
         });
         rf.run(fut);
     }
 
-    public static <T> void runListParallelTasks(List<RunnableFuture<T>> rfs,
-                                                Handler<AsyncResult<Void>> handler) {
+    public static <T> void executeParallel(List<RunnableFuture<T>> rfs, Handler<AsyncResult<T>> handler) {
         if (rfs.isEmpty()) {
             handler.handle(Future.failedFuture("No tasks to run"));
             return;
