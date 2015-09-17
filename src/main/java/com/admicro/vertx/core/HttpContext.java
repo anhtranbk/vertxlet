@@ -1,12 +1,12 @@
 package com.admicro.vertx.core;
 
-public interface HttpServerContext {
+public interface HttpContext {
 
     static final String ROOT_TAG = "server";
 
     String configurationPath();
 
-    static HttpServerContext defaultContext() {
+    static HttpContext defaultContext() {
         return () -> "server.xml";
     }
 }

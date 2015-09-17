@@ -11,6 +11,7 @@
   <properties>
     <jdk.version>1.8</jdk.version>
     <junit.version>4.12</junit.version>
+    <vertx.version>3.0.0</vertx.version>
   </properties>
 
   <dependencies>
@@ -22,12 +23,17 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
-      <version>3.0.0</version>
+      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-jdbc-client</artifactId>
-      <version>3.0.0</version>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-redis-client</artifactId>
+      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -38,6 +44,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-unit</artifactId>
+      <version>${vertx.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

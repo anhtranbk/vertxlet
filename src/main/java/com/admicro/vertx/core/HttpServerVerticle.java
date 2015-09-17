@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HttpServerVerticle extends AbstractVerticle {
 
     static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
+    static final Logger _logger = LoggerFactory.getLogger(HttpServerVerticle.class);
 
-    private final Map<String, Vertxlet> mappingUrls = new HashMap<>();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Map<String, IHttpVertxlet> mappingUrls = new HashMap<>();
     private ServerOptions options;
 
     public HttpServerVerticle(ServerOptions options) {
@@ -54,7 +54,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             scanForMappingUrl(router);
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | InstantiationException e) {
-            logger.error(e.getMessage(), e);
+            _logger.error(e.getMessage(), e);
             startFuture.fail(e);
             return;
         }
@@ -65,7 +65,7 @@ public class HttpServerVerticle extends AbstractVerticle {
                 HttpServer server = vertx.createHttpServer();
                 server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), res -> {
                     if (res.succeeded()) {
-                        logger.info(String.format("Http server started at [%s:%d]",
+                        _logger.info(String.format("Http server started at [%s:%d]",
                                 options.getAddress(), options.getPort()));
                         startFuture.complete();
                     } else {
@@ -93,7 +93,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        logger.info("All vertxlet destroy succeeded");
+                        _logger.info("All vertx destroy succeeded");
                         stopFuture.complete();
                     }
                 } else {
@@ -105,18 +105,18 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
-        for (Class<?> clazz : reflections.getTypesAnnotatedWith(VertxletRequestMapping.class)) {
-            Vertxlet servlet;
+        for (Class<?> clazz : reflections.getTypesAnnotatedWith(RequestMapping.class)) {
+            IHttpVertxlet servlet;
             try {
-                servlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
+                servlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
                 servlet.setContext(vertx, this);
             } catch (ClassCastException e) {
-                logger.error(e.getMessage(), e);
+                _logger.error(e.getMessage(), e);
                 continue;
             }
 
-            for (String url : clazz.getAnnotation(VertxletRequestMapping.class).url()) {
-                logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
+            for (String url : clazz.getAnnotation(RequestMapping.class).url()) {
+                _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                 mappingUrls.put(url, servlet);
                 router.route(url).handler(servlet::handle);
             }
@@ -136,7 +136,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        logger.info("All vertxlet init succeeded");
+                        _logger.info("All vertx init succeeded");
                         initFuture.complete();
                     }
                 } else {

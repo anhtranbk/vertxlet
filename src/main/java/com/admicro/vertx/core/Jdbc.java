@@ -7,9 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface VertxletRequestMapping {
-
-    String[] url() default {};
-    int loadOnStartup() default 100;
-    boolean usingDatabase() default false;
+public @interface Jdbc {
 }

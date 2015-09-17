@@ -14,15 +14,15 @@ import java.io.IOException;
 public interface HttpServer {
 
     public static void startNew() throws VertxletException {
-        HttpServer.startNew(HttpServerContext.defaultContext());
+        HttpServer.startNew(HttpContext.defaultContext());
     }
 
-    public static void startNew(HttpServerContext serverContext) throws VertxletException {
+    public static void startNew(HttpContext serverContext) throws VertxletException {
         try {
             Vertx vertx = Vertx.vertx();
             String xmlContent = FileUtils.readAll(vertx, serverContext.configurationPath())
                     .replaceAll("\t", "").replaceAll("\n", "").replaceAll(" ", "");
-            JsonObject config = XmlConverter.toJson(xmlContent, HttpServerContext.ROOT_TAG).getJsonObject("server");
+            JsonObject config = XmlConverter.toJson(xmlContent, HttpContext.ROOT_TAG).getJsonObject("server");
 
             // apply vertx options
             if (config.containsKey("vertx_options")) {

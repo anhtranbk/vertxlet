@@ -5,7 +5,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
-public interface Vertxlet {
+public interface IHttpVertxlet {
 
     void setContext(Vertx vertx, Verticle verticle);
 

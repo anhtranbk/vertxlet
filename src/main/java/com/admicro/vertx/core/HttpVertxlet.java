@@ -1,5 +1,6 @@
 package com.admicro.vertx.core;
 
+import com.admicro.vertx.utils.TaskRunner;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -13,12 +14,17 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.redis.RedisClient;
 
-public class HttpVertxlet implements Vertxlet {
+import java.util.ArrayList;
+import java.util.List;
+
+public class HttpVertxlet implements IHttpVertxlet {
+
+    private static final Logger _logger = LoggerFactory.getLogger(HttpVertxlet.class);
 
     private Vertx vertx;
     private Verticle verticle;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void setContext(Vertx vertx, Verticle verticle) {
@@ -48,28 +54,49 @@ public class HttpVertxlet implements Vertxlet {
 
     @Override
     public void handle(RoutingContext routingContext) {
-        if (getClass().getAnnotation(VertxletRequestMapping.class).usingDatabase()) {
-            JDBCClient client = JDBCClient.createShared(vertx, getDatabaseConfig());
+        List<RunnableFuture<Void>> rfs = new ArrayList<>();
+        rfs.add(fut -> { // create jdbc connection (if needed)
+            if (getClass().isAnnotationPresent(Jdbc.class)) {
+                JsonObject jdbcConfig = getDatabaseConfig().getJsonObject("jdbc");
+                JDBCClient.createShared(vertx, jdbcConfig).getConnection(ar -> {
+                    if (ar.failed()) {
+                        routingContext.fail(ar.cause());
+                    } else {
+                        SQLConnection con = ar.result();
+                        routingContext.put("jdbc", con);
+                        routingContext.addHeadersEndHandler(fut2 -> con.close(v -> {
+                            if (v.failed()) {
+                                fut2.fail(v.cause());
+                            } else {
+                                fut2.complete();
+                            }
+                        }));
+                        fut.complete();
+                    }
+                });
+            } else {
+                fut.complete();
+            }
+        });
+        rfs.add(fut -> { // create redis connection (if need)
+            if (getClass().isAnnotationPresent(Redis.class)) {
+                JsonObject redisConfig = getDatabaseConfig().getJsonObject("redis");
+                RedisClient redis = RedisClient.create(vertx, redisConfig);
 
-            client.getConnection(ar -> {
-                if (ar.failed()) {
-                    routingContext.fail(ar.cause());
-                } else {
-                    SQLConnection con = ar.result();
-                    routingContext.put("db", con);
-                    routingContext.addHeadersEndHandler(future -> con.close(v -> {
-                        if (v.failed()) {
-                            future.fail(v.cause());
-                        } else {
-                            future.complete();
-                        }
-                    }));
-                    routeByMethod(routingContext);
-                }
-            });
-        } else {
-            routeByMethod(routingContext);
-        }
+                routingContext.put("redis", redis);
+                routingContext.addHeadersEndHandler(fut2 -> redis.close(v -> {
+                    if (v.failed()) {
+                        fut2.fail(v.cause());
+                    } else {
+                        fut2.complete();
+                    }
+                }));
+            } else {
+                fut.complete();
+            }
+        });
+
+        TaskRunner.runListParallelTasks(rfs, ar -> routeByMethod(routingContext));
     }
 
     @Override
@@ -131,14 +158,23 @@ public class HttpVertxlet implements Vertxlet {
     }
 
     protected SQLConnection getSqlConnection(RoutingContext routingContext) throws VertxException {
-
-        SQLConnection con = routingContext.get("db");
+        SQLConnection con = routingContext.get("jdbc");
         if (con == null) {
-            VertxException e = new VertxException("Vertxlet was not declared using database");
-            logger.error(e.getMessage(), e);
+            VertxException e = new VertxException("Vertxlet was not declared with @Jdbc");
+            _logger.error(e.getMessage(), e);
             throw e;
         }
         return con;
+    }
+
+    protected RedisClient getRedisClient(RoutingContext routingContext) throws  VertxException {
+        RedisClient redis = routingContext.get("redis");
+        if (redis == null) {
+            VertxException e = new VertxException("Vertxlet was not declared with @Redis");
+            _logger.error(e.getMessage(), e);
+            throw e;
+        }
+        return redis;
     }
 
     protected void routeByMethod(RoutingContext routingContext) {
@@ -155,7 +191,7 @@ public class HttpVertxlet implements Vertxlet {
                 doDelete(routingContext);
             } else {
                 UnsupportedOperationException e = new UnsupportedOperationException("Method not support");
-                logger.error(e.getMessage(), e);
+                _logger.error(e.getMessage(), e);
                 throw e;
             }
         } catch (Exception e) {
