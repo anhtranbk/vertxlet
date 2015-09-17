@@ -20,7 +20,7 @@ public class TaskRunner {
         AtomicInteger remainTasks = new AtomicInteger(count);
         AtomicBoolean finish = new AtomicBoolean(false);
 
-        for (int i = 0; i < remainTasks.get(); i++) {
+        for (int i = 0; i < count; i++) {
             Future<T> fut = Future.future();
             fut.setHandler(ar -> {
                 if (!finish.get()) {
