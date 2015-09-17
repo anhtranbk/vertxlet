@@ -38,7 +38,7 @@ public class TaskRunnerTest {
     }
 
     @Test
-    public void testLoopParallelTasks(TestContext context) {
+    public void testLoopParallel(TestContext context) {
         List<Integer> list = new ArrayList<>();
         list.add(1);
         list.add(2);
@@ -62,7 +62,7 @@ public class TaskRunnerTest {
     }
 
     @Test
-    public void testRunListParallelTasks(TestContext context) {
+    public void testExecuteParallel(TestContext context) {
         AtomicInteger ai = new AtomicInteger(0);
         List<RunnableFuture<Void>> rfs = new ArrayList<>();
         rfs.add(fut -> {
