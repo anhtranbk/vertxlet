@@ -1,6 +1,6 @@
-package com.admicro.vertx.core;
+package com.admicro.vertxlet.core;
 
-import com.admicro.vertx.utils.TaskRunner;
+import com.admicro.vertxlet.utils.TaskRunner;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

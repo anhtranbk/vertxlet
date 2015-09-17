@@ -1,7 +1,7 @@
-package com.admicro.vertx.core;
+package com.admicro.vertxlet.core;
 
-import com.admicro.vertx.utils.FileUtils;
-import com.admicro.vertx.utils.XmlConverter;
+import com.admicro.vertxlet.utils.FileUtils;
+import com.admicro.vertxlet.utils.XmlConverter;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -24,7 +24,7 @@ public interface HttpServer {
                     .replaceAll("\t", "").replaceAll("\n", "").replaceAll(" ", "");
             JsonObject config = XmlConverter.toJson(xmlContent, HttpContext.ROOT_TAG).getJsonObject("server");
 
-            // apply vertx options
+            // apply vertxlet options
             if (config.containsKey("vertx_options")) {
                 vertx = Vertx.vertx(new VertxOptions(config.getJsonObject("vertx_options")));
             }

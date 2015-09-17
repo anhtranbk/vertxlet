@@ -1,4 +1,4 @@
-package com.admicro.vertx.utils;
+package com.admicro.vertxlet.utils;
 
 import io.vertx.core.AsyncResult;
 

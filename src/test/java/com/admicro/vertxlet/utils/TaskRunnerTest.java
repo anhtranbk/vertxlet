@@ -1,6 +1,6 @@
-package com.admicro.vertx.utils;
+package com.admicro.vertxlet.utils;
 
-import com.admicro.vertx.core.RunnableFuture;
+import com.admicro.vertxlet.core.RunnableFuture;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;

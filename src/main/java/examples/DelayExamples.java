@@ -1,7 +1,7 @@
 package examples;
 
-import com.admicro.vertx.core.HttpVertxlet;
-import com.admicro.vertx.core.RequestMapping;
+import com.admicro.vertxlet.core.HttpVertxlet;
+import com.admicro.vertxlet.core.RequestMapping;
 import io.vertx.ext.web.RoutingContext;
 
 @RequestMapping(url = {"/delay/:delay"})

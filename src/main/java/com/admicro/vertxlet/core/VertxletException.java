@@ -1,4 +1,4 @@
-package com.admicro.vertx.core;
+package com.admicro.vertxlet.core;
 
 public class VertxletException extends Exception {
 

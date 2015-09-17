@@ -1,7 +1,7 @@
 package examples;
 
-import com.admicro.vertx.core.HttpServer;
-import com.admicro.vertx.core.VertxletException;
+import com.admicro.vertxlet.core.HttpServer;
+import com.admicro.vertxlet.core.VertxletException;
 
 public class Runner {
 

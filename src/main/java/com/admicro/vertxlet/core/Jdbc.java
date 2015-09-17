@@ -1,4 +1,4 @@
-package com.admicro.vertx.core;
+package com.admicro.vertxlet.core;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

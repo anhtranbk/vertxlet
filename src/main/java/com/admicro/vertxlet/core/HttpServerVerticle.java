@@ -1,6 +1,6 @@
-package com.admicro.vertx.core;
+package com.admicro.vertxlet.core;
 
-import com.admicro.vertx.utils.SimpleClassLoader;
+import com.admicro.vertxlet.utils.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -93,7 +93,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        _logger.info("All vertx destroy succeeded");
+                        _logger.info("All vertxlet destroy succeeded");
                         stopFuture.complete();
                     }
                 } else {
@@ -136,7 +136,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        _logger.info("All vertx init succeeded");
+                        _logger.info("All vertxlet init succeeded");
                         initFuture.complete();
                     }
                 } else {

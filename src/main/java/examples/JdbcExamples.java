@@ -1,8 +1,8 @@
 package examples;
 
-import com.admicro.vertx.core.HttpVertxlet;
-import com.admicro.vertx.core.Jdbc;
-import com.admicro.vertx.core.RequestMapping;
+import com.admicro.vertxlet.core.HttpVertxlet;
+import com.admicro.vertxlet.core.Jdbc;
+import com.admicro.vertxlet.core.RequestMapping;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
