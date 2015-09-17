@@ -1,0 +1,61 @@
+package com.admicro.vertx.utils;
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@RunWith(VertxUnitRunner.class)
+public class TaskRunnerTest {
+
+    private Vertx vertx;
+
+    @Before
+    public void setup(TestContext context) {
+        vertx = Vertx.vertx();
+        vertx.deployVerticle(new AbstractVerticle() {
+            @Override
+            public void start(io.vertx.core.Future<Void> startFuture) throws Exception {
+                startFuture.complete();
+            }
+        }, context.asyncAssertSuccess());
+    }
+
+    @After
+    public void tearDown(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
+
+    @Test
+    public void testLoopParallelTasks(TestContext context) {
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        Iterator<Integer> iterator = list.iterator();
+        AtomicInteger ai = new AtomicInteger(0);
+
+        TaskRunner.loopParallelTasks(fut -> {
+            int val = iterator.next();
+            ai.set(ai.get() + val);
+            fut.complete();
+        }, list.size(), ar -> {
+            final Async async = context.async();
+            if (ar.failed()) {
+            } else {
+                context.assertEquals(ai.get(), 6);
+            }
+            async.complete();
+        });
+    }
+}
