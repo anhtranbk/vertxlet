@@ -1,5 +1,7 @@
 package com.admicro.vertxlet.core;
 
+import com.admicro.vertxlet.core.db.Jdbc;
+import com.admicro.vertxlet.core.db.Redis;
 import com.admicro.vertxlet.utils.TaskRunner;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -203,7 +205,7 @@ public class HttpVertxlet implements IHttpVertxlet {
         }
     }
 
-    private JsonObject getDatabaseConfig() {
+    protected final JsonObject getDatabaseConfig() {
         return (JsonObject) vertx.sharedData().getLocalMap(
                 HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
     }
