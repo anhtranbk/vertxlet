@@ -1,12 +1,12 @@
 package com.admicro.vertxlet.core;
 
+import com.admicro.vertxlet.core.db.IDbAdaptor;
 import com.admicro.vertxlet.utils.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CookieHandler;
 import org.reflections.Reflections;
@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
+    static final String DATABASE_KEY = "db";
     static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
     static final Logger _logger = LoggerFactory.getLogger(HttpServerVerticle.class);
 
@@ -33,6 +34,10 @@ public class HttpServerVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         router.route().handler(routingContext -> {
+            // Map for save IDbAdaptor instances, using for clean up
+            Map<String, IDbAdaptor> iDbAdaptorMap = new HashMap<>();
+            routingContext.put(DATABASE_KEY, iDbAdaptorMap);
+
             // Vert.x-Web has cookies support using the CookieHandler.
             // Make sure a cookie handler is on a matching route for any requests
             CookieHandler.create();
@@ -41,11 +46,15 @@ public class HttpServerVerticle extends AbstractVerticle {
             // Route this context to the next matching route (if any)
             routingContext.next();
         }).failureHandler(routingContext -> {
-            SQLConnection con = routingContext.get("db");
-            if (con != null) {
-                con.close(v -> {
+            _logger.error("Unexpected error occur", routingContext.failure());
+
+            // Guarantee db connections is closed when error occurs
+            Map<String, IDbAdaptor> iDbAdaptorMap = routingContext.get(DATABASE_KEY);
+            for (IDbAdaptor adaptor : iDbAdaptorMap.values()) {
+                adaptor.close(v -> {
                 });
             }
+
             routingContext.response().putHeader("content-type", "text/html")
                     .setStatusCode(500).end("<html><h1>Server internal error</h1></html>");
         });

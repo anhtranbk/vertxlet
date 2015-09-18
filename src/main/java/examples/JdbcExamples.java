@@ -1,7 +1,7 @@
 package examples;
 
 import com.admicro.vertxlet.core.HttpVertxlet;
-import com.admicro.vertxlet.core.Jdbc;
+import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.RequestMapping;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
