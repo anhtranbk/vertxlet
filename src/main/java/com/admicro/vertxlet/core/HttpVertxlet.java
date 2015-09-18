@@ -5,9 +5,7 @@ import com.admicro.vertxlet.core.db.IDbAdaptor;
 import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
 import com.admicro.vertxlet.utils.TaskRunner;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
@@ -105,29 +103,6 @@ public class HttpVertxlet implements IHttpVertxlet {
         routingContext.response().end();
     }
 
-    protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler) {
-        executingHeavyTask(task, handler, false);
-    }
-
-    protected <T> void executingHeavyTask(AsyncTask<T> task, Handler<AsyncResult<T>> handler, boolean ordered) {
-        vertx.executeBlocking(future -> {
-            try {
-                T result = task.doTask();
-                future.complete(result);
-            } catch (Exception e) {
-                future.fail(e);
-            }
-        }, ordered, handler);
-    }
-
-    protected void runOnSameEventLoop(Runnable runnable) {
-        vertx.getOrCreateContext().runOnContext(v -> runnable.run());
-    }
-
-    protected void runDelay(Runnable runnable, long delay) {
-        vertx.setTimer(delay, id -> runnable.run());
-    }
-
     protected SQLConnection getSqlConnection(RoutingContext routingContext) throws VertxException {
         Map<String, IDbAdaptor> map = routingContext.get(HttpServerVerticle.DATABASE_KEY);
         SQLConnection con = map.get(Jdbc.class.getSimpleName()).getInstance();
@@ -187,7 +162,6 @@ public class HttpVertxlet implements IHttpVertxlet {
 
         adaptor.openConnection(vertx, config, ar -> {
             if (ar.failed()) {
-                _logger.error("Open database connection failed", ar.cause());
                 routingContext.fail(ar.cause());
             } else {
                 Map<String, IDbAdaptor> map = routingContext.get(HttpServerVerticle.DATABASE_KEY);

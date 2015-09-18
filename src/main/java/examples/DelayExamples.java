@@ -10,12 +10,13 @@ public class DelayExamples extends HttpVertxlet {
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {
         System.out.println("Received request from: " + routingContext.request().path());
-        runDelay(() -> routingContext.response().end("Task delay executed"),
-                Long.parseLong(routingContext.request().getParam("delay")));
+        getVertx().setTimer(Long.parseLong(routingContext.request().getParam("delay")),
+                ar -> routingContext.response().end("Task delay executed"));
     }
 
     @Override
     protected void doPost(RoutingContext routingContext) throws Exception {
-        runOnSameEventLoop(() -> routingContext.response().end("Test runOnSameEventLoop succeeded"));
+        getVertx().runOnContext(v -> routingContext.response()
+                .end("Test runOnSameEventLoop succeeded"));
     }
 }
