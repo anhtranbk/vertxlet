@@ -33,29 +33,29 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
         Router router = Router.router(vertx);
 
-        router.route().handler(routingContext -> {
+        router.route().handler(rc -> {
             // Map for save IDbAdaptor instances, using for clean up
             Map<String, IDbAdaptor> iDbAdaptorMap = new HashMap<>();
-            routingContext.put(DATABASE_KEY, iDbAdaptorMap);
+            rc.put(DATABASE_KEY, iDbAdaptorMap);
 
             // Vert.x-Web has cookies support using the CookieHandler.
             // Make sure a cookie handler is on a matching route for any requests
             CookieHandler.create();
 
-            routingContext.addHeadersEndHandler(Future::complete);
+            rc.addHeadersEndHandler(Future::complete);
             // Route this context to the next matching route (if any)
-            routingContext.next();
-        }).failureHandler(routingContext -> {
-            _logger.error("Unexpected error occur", routingContext.failure());
+            rc.next();
+        }).failureHandler(rc -> {
+            _logger.error("Unexpected error occur", rc.failure());
 
             // Guarantee db connections is closed when error occurs
-            Map<String, IDbAdaptor> iDbAdaptorMap = routingContext.get(DATABASE_KEY);
+            Map<String, IDbAdaptor> iDbAdaptorMap = rc.get(DATABASE_KEY);
             for (IDbAdaptor adaptor : iDbAdaptorMap.values()) {
                 adaptor.close(v -> {
                 });
             }
 
-            routingContext.response().putHeader("content-type", "text/html")
+            rc.response().putHeader("content-type", "text/html")
                     .setStatusCode(500).end("<html><h1>Server internal error</h1></html>");
         });
 

@@ -55,17 +55,17 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     @Override
-    public void handle(RoutingContext routingContext) {
-        routingContext.put("start", System.currentTimeMillis());
+    public void handle(RoutingContext rc) {
+        rc.put("start", System.currentTimeMillis());
         List<RunnableFuture<Void>> rfs = new ArrayList<>();
         if (getClass().isAnnotationPresent(Jdbc.class)) {
-            rfs.add(fut -> setupDatabase(routingContext, Jdbc.class.getSimpleName(), fut));
+            rfs.add(fut -> setupDatabase(rc, Jdbc.class.getSimpleName(), fut));
         }
         if (getClass().isAnnotationPresent(Redis.class)) {
-            rfs.add(fut -> setupDatabase(routingContext, Redis.class.getSimpleName(), fut));
+            rfs.add(fut -> setupDatabase(rc, Redis.class.getSimpleName(), fut));
         }
 
-        TaskRunner.executeParallel(rfs, ar -> routeByMethod(routingContext));
+        TaskRunner.executeParallel(rfs, ar -> routeByMethod(rc));
     }
 
     @Override
@@ -83,28 +83,28 @@ public class HttpVertxlet implements IHttpVertxlet {
     protected void destroy() throws Exception {
     }
 
-    protected void doGet(RoutingContext routingContext) throws Exception {
-        routingContext.response().end();
+    protected void doGet(RoutingContext rc) throws Exception {
+        rc.response().end();
     }
 
-    protected void doPost(RoutingContext routingContext) throws Exception {
-        routingContext.response().end();
+    protected void doPost(RoutingContext rc) throws Exception {
+        rc.response().end();
     }
 
-    protected void doPut(RoutingContext routingContext) throws Exception {
-        routingContext.response().end();
+    protected void doPut(RoutingContext rc) throws Exception {
+        rc.response().end();
     }
 
-    protected void doHead(RoutingContext routingContext) throws Exception {
-        routingContext.response().end();
+    protected void doHead(RoutingContext rc) throws Exception {
+        rc.response().end();
     }
 
-    protected void doDelete(RoutingContext routingContext) throws Exception {
-        routingContext.response().end();
+    protected void doDelete(RoutingContext rc) throws Exception {
+        rc.response().end();
     }
 
-    protected SQLConnection getSqlConnection(RoutingContext routingContext) throws VertxException {
-        Map<String, IDbAdaptor> map = routingContext.get(HttpServerVerticle.DATABASE_KEY);
+    protected SQLConnection getSqlConnection(RoutingContext rc) throws VertxException {
+        Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
         SQLConnection con = map.get(Jdbc.class.getSimpleName()).getInstance();
         if (con == null) {
             VertxException e = new VertxException("Vertxlet was not declared with @Jdbc");
@@ -114,8 +114,8 @@ public class HttpVertxlet implements IHttpVertxlet {
         return con;
     }
 
-    protected RedisClient getRedisClient(RoutingContext routingContext) throws VertxException {
-        Map<String, IDbAdaptor> map = routingContext.get(HttpServerVerticle.DATABASE_KEY);
+    protected RedisClient getRedisClient(RoutingContext rc) throws VertxException {
+        Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
         RedisClient redis = map.get(Redis.class.getSimpleName()).getInstance();
         if (redis == null) {
             VertxException e = new VertxException("Vertxlet was not declared with @Redis");
@@ -130,18 +130,18 @@ public class HttpVertxlet implements IHttpVertxlet {
                 HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
     }
 
-    protected void routeByMethod(RoutingContext routingContext) {
+    protected void routeByMethod(RoutingContext rc) {
         try {
-            if (routingContext.request().method() == HttpMethod.GET) {
-                doGet(routingContext);
-            } else if (routingContext.request().method() == HttpMethod.POST) {
-                doPost(routingContext);
-            } else if (routingContext.request().method() == HttpMethod.PUT) {
-                doPut(routingContext);
-            } else if (routingContext.request().method() == HttpMethod.HEAD) {
-                doHead(routingContext);
-            } else if (routingContext.request().method() == HttpMethod.DELETE) {
-                doDelete(routingContext);
+            if (rc.request().method() == HttpMethod.GET) {
+                doGet(rc);
+            } else if (rc.request().method() == HttpMethod.POST) {
+                doPost(rc);
+            } else if (rc.request().method() == HttpMethod.PUT) {
+                doPut(rc);
+            } else if (rc.request().method() == HttpMethod.HEAD) {
+                doHead(rc);
+            } else if (rc.request().method() == HttpMethod.DELETE) {
+                doDelete(rc);
             } else {
                 UnsupportedOperationException e = new UnsupportedOperationException("Method not support");
                 _logger.error(e.getMessage(), e);
@@ -151,22 +151,22 @@ public class HttpVertxlet implements IHttpVertxlet {
             if (e instanceof UnsupportedOperationException) {
                 throw (UnsupportedOperationException) e;
             } else {
-                routingContext.fail(e);
+                rc.fail(e);
             }
         }
     }
 
-    private void setupDatabase(RoutingContext routingContext, String type, Future<Void> future) {
+    private void setupDatabase(RoutingContext rc, String type, Future<Void> future) {
         IDbAdaptor adaptor = DbAdaptorFactory.iDbAdaptor(type);
         JsonObject config = getDatabaseConfig().getJsonObject(type.toLowerCase());
 
         adaptor.openConnection(vertx, config, ar -> {
             if (ar.failed()) {
-                routingContext.fail(ar.cause());
+                rc.fail(ar.cause());
             } else {
-                Map<String, IDbAdaptor> map = routingContext.get(HttpServerVerticle.DATABASE_KEY);
+                Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
                 map.put(type, adaptor);
-                routingContext.addHeadersEndHandler(fut -> {
+                rc.addHeadersEndHandler(fut -> {
                     adaptor.close(v -> {
                     });
                     fut.complete();
