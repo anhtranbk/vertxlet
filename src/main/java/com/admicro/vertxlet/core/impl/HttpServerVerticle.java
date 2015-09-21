@@ -2,7 +2,7 @@ package com.admicro.vertxlet.core.impl;
 
 import com.admicro.vertxlet.core.IHttpVertxlet;
 import com.admicro.vertxlet.core.RequestMapping;
-import com.admicro.vertxlet.core.db.IDbAdaptor;
+import com.admicro.vertxlet.core.db.IDbConnector;
 import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -38,7 +38,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         router.route().handler(rc -> {
             // Map for save IDbAdaptor instances, using for clean up
-            Map<String, IDbAdaptor> iDbAdaptorMap = new HashMap<>();
+            Map<String, IDbConnector> iDbAdaptorMap = new HashMap<>();
             rc.put(DATABASE_KEY, iDbAdaptorMap);
 
             // Vert.x-Web has cookies support using the CookieHandler.
@@ -52,8 +52,8 @@ public class HttpServerVerticle extends AbstractVerticle {
             _logger.error("Unexpected error occur", rc.failure());
 
             // Guarantee db connections is closed when error occurs
-            Map<String, IDbAdaptor> iDbAdaptorMap = rc.get(DATABASE_KEY);
-            for (IDbAdaptor adaptor : iDbAdaptorMap.values()) {
+            Map<String, IDbConnector> iDbAdaptorMap = rc.get(DATABASE_KEY);
+            for (IDbConnector adaptor : iDbAdaptorMap.values()) {
                 adaptor.close(v -> {
                 });
             }

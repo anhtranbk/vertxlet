@@ -2,8 +2,8 @@ package com.admicro.vertxlet.core.impl;
 
 import com.admicro.vertxlet.core.IHttpVertxlet;
 import com.admicro.vertxlet.core.RunnableFuture;
-import com.admicro.vertxlet.core.db.DbAdaptorFactory;
-import com.admicro.vertxlet.core.db.IDbAdaptor;
+import com.admicro.vertxlet.core.db.impl.DbConnectorFactory;
+import com.admicro.vertxlet.core.db.IDbConnector;
 import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
 import com.admicro.vertxlet.util.TaskRunner;
@@ -106,7 +106,7 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     protected SQLConnection getSqlConnection(RoutingContext rc) throws VertxException {
-        Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+        Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
         SQLConnection con = map.get(Jdbc.class.getSimpleName()).getInstance();
         if (con == null) {
             VertxException e = new VertxException("Vertxlet was not declared with @Jdbc");
@@ -117,7 +117,7 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     protected RedisClient getRedisClient(RoutingContext rc) throws VertxException {
-        Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+        Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
         RedisClient redis = map.get(Redis.class.getSimpleName()).getInstance();
         if (redis == null) {
             VertxException e = new VertxException("Vertxlet was not declared with @Redis");
@@ -159,14 +159,14 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     private void setupDatabase(RoutingContext rc, String type, Future<Void> future) {
-        IDbAdaptor adaptor = DbAdaptorFactory.iDbAdaptor(type);
+        IDbConnector adaptor = DbConnectorFactory.iDbAdaptor(type);
         JsonObject config = getDatabaseConfig().getJsonObject(type.toLowerCase());
 
         adaptor.openConnection(vertx, config, ar -> {
             if (ar.failed()) {
                 rc.fail(ar.cause());
             } else {
-                Map<String, IDbAdaptor> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+                Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
                 map.put(type, adaptor);
                 rc.addHeadersEndHandler(fut -> {
                     adaptor.close(v -> {

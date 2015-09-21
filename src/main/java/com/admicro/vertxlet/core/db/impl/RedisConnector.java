@@ -1,5 +1,6 @@
-package com.admicro.vertxlet.core.db;
+package com.admicro.vertxlet.core.db.impl;
 
+import com.admicro.vertxlet.core.db.IDbConnector;
 import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -8,7 +9,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 
-public class RedisAdaptor implements IDbAdaptor {
+public class RedisConnector implements IDbConnector {
 
     private RedisClient redis;
 
@@ -23,7 +24,7 @@ public class RedisAdaptor implements IDbAdaptor {
     @SuppressWarnings("unchecked")
     public <T> T getInstance() {
         if (redis == null)
-            throw IDbAdaptor.NOT_INITIALIZED_EXCEPTION;
+            throw IDbConnector.NOT_INITIALIZED_EXCEPTION;
         return (T) redis;
     }
 

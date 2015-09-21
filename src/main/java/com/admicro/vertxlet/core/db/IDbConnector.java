@@ -6,7 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-public interface IDbAdaptor {
+public interface IDbConnector {
 
     void openConnection(@NotNull Vertx vertx, @NotNull JsonObject config,
                         @NotNull Handler<AsyncResult<Void>> handler);
