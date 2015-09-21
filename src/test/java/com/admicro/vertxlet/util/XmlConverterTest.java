@@ -1,4 +1,4 @@
-package com.admicro.vertxlet.utils;
+package com.admicro.vertxlet.util;
 
 import io.vertx.core.json.JsonObject;
 import org.junit.Assert;

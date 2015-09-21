@@ -1,7 +1,9 @@
-package com.admicro.vertxlet.core;
+package com.admicro.vertxlet.core.impl;
 
+import com.admicro.vertxlet.core.IHttpVertxlet;
+import com.admicro.vertxlet.core.RequestMapping;
 import com.admicro.vertxlet.core.db.IDbAdaptor;
-import com.admicro.vertxlet.utils.SimpleClassLoader;
+import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -18,8 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
-    static final String DATABASE_KEY = "db";
-    static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
+    public static final String DATABASE_KEY = "db";
+    public static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
+
     static final Logger _logger = LoggerFactory.getLogger(HttpServerVerticle.class);
 
     private final Map<String, IHttpVertxlet> mappingUrls = new HashMap<>();

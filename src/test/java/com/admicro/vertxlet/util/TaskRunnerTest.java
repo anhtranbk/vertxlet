@@ -1,4 +1,4 @@
-package com.admicro.vertxlet.utils;
+package com.admicro.vertxlet.util;
 
 import com.admicro.vertxlet.core.RunnableFuture;
 import io.vertx.core.AbstractVerticle;

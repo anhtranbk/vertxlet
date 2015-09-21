@@ -1,6 +1,6 @@
 package examples;
 
-import com.admicro.vertxlet.core.HttpVertxlet;
+import com.admicro.vertxlet.core.impl.HttpVertxlet;
 import com.admicro.vertxlet.core.RequestMapping;
 import io.vertx.ext.web.RoutingContext;
 

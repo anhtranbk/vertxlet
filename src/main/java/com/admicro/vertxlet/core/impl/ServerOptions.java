@@ -1,4 +1,4 @@
-package com.admicro.vertxlet.core;
+package com.admicro.vertxlet.core.impl;
 
 import io.vertx.core.json.JsonObject;
 
