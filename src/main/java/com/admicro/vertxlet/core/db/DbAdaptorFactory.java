@@ -1,6 +1,6 @@
 package com.admicro.vertxlet.core.db;
 
-public class DbAdaptorFactory {
+public interface DbAdaptorFactory {
 
     public static IDbAdaptor iDbAdaptor(String type) {
         if ("jdbc".equalsIgnoreCase(type)) {
