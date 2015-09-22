@@ -1,7 +1,5 @@
 package com.admicro.vertxlet.util;
 
-import io.vertx.core.Vertx;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,10 +7,10 @@ import java.net.URL;
 
 public class FileUtils {
 
-    public static String readAll(Vertx vertx, String path) throws IOException, NullPointerException {
+    public static String readAll(ClassLoader cl, String path) throws IOException, NullPointerException {
         FileReader reader = null;
         try {
-            URL url = vertx.getClass().getClassLoader().getResource(path);
+            URL url = cl.getResource(path);
             if (url == null)
                 throw new NullPointerException("Url not found");
 
