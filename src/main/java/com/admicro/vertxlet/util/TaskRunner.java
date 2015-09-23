@@ -53,20 +53,18 @@ public class TaskRunner {
         }
 
         AtomicInteger remainTasks = new AtomicInteger(rfs.size());
-        AtomicBoolean finish = new AtomicBoolean(false);
+
+        Future<T> future = Future.future();
+        future.setHandler(handler);
 
         for (RunnableFuture<T> rf : rfs) {
             Future<T> fut = Future.future();
             fut.setHandler(ar -> {
-                if (!finish.get()) {
+                if (!future.isComplete()) {
                     if (ar.failed()) {
-                        finish.set(true);
-                        handler.handle(Future.failedFuture(ar.cause()));
-                    } else {
-                        if (remainTasks.decrementAndGet() == 0) {
-                            finish.set(true);
-                            handler.handle(Future.succeededFuture());
-                        }
+                        future.fail(ar.cause());
+                    } else if (remainTasks.decrementAndGet() == 0) {
+                        future.complete();
                     }
                 }
             });

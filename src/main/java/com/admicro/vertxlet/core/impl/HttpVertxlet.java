@@ -67,7 +67,13 @@ public class HttpVertxlet implements IHttpVertxlet {
             rfs.add(fut -> setupDatabase(rc, Redis.class.getSimpleName(), fut));
         }
 
-        TaskRunner.executeParallel(rfs, ar -> routeByMethod(rc));
+        TaskRunner.executeParallel(rfs, ar -> {
+            if (ar.failed()) {
+                rc.fail(ar.cause());
+            } else {
+                routeByMethod(rc);
+            }
+        });
     }
 
     @Override
@@ -164,7 +170,7 @@ public class HttpVertxlet implements IHttpVertxlet {
 
         adaptor.openConnection(vertx, config, ar -> {
             if (ar.failed()) {
-                rc.fail(ar.cause());
+                future.fail(ar.cause());
             } else {
                 Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
                 map.put(type, adaptor);

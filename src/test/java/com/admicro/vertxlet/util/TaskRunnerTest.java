@@ -53,7 +53,7 @@ public class TaskRunnerTest {
         }, list.size(), ar -> {
             final Async async = context.async();
             if (ar.failed()) {
-                context.assertTrue(false);
+                context.fail(ar.cause());
             } else {
                 context.assertEquals(ai.get(), 6);
             }
@@ -80,7 +80,7 @@ public class TaskRunnerTest {
 
         TaskRunner.executeParallel(rfs, ar -> {
             if (ar.failed()) {
-                context.assertTrue(false);
+                context.fail(ar.cause());
             } else {
                 context.assertEquals(ai.get(), 12);
             }
