@@ -4,7 +4,10 @@ import com.admicro.vertxlet.core.impl.HttpServerVerticle;
 import com.admicro.vertxlet.core.impl.ServerOptions;
 import com.admicro.vertxlet.util.FileUtils;
 import com.admicro.vertxlet.util.XmlConverter;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
@@ -71,16 +74,17 @@ public interface HttpServer {
             // apply server options
             ServerOptions options = (config.containsKey("server_options"))
                     ? new ServerOptions(config.getJsonObject("server_options")) : new ServerOptions();
-            HttpServerVerticle server = new HttpServerVerticle(options);
+            Verticle server = new HttpServerVerticle(options);
 
             // apply deployment options
             DeploymentOptions deploymentOptions = (config.containsKey("deployment_options"))
-                    ? new DeploymentOptions(config.getJsonObject("deployment_options")) : null;
-            if (deploymentOptions != null) {
-                vertx.deployVerticle(server, deploymentOptions);
-            } else {
-                vertx.deployVerticle(server);
-            }
+                    ? new DeploymentOptions(config.getJsonObject("deployment_options"))
+                    : new DeploymentOptions();
+            vertx.deployVerticle(server, deploymentOptions, ar -> {
+                if (ar.failed()) {
+                    vertx.close(v -> System.err.println("Error when deploy verticle, vertx closed"));
+                }
+            });
         } catch (IOException | ParserConfigurationException | SAXException | NullPointerException e) {
             throw new VertxletException(e);
         }
