@@ -18,7 +18,8 @@ public class TaskRunner {
 
     public static <T> void loopParallel(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
-            handler.handle(Future.failedFuture("No tasks to run"));
+            _logger.warn("No tasks to run");
+            handler.handle(Future.succeededFuture());
             return;
         }
 
@@ -31,7 +32,8 @@ public class TaskRunner {
 
     public static <T> void loopSequence(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
-            handler.handle(Future.failedFuture("No tasks to run"));
+            _logger.warn("No tasks to run");
+            handler.handle(Future.succeededFuture());
             return;
         }
 
