@@ -58,7 +58,6 @@ public class HttpVertxlet implements IHttpVertxlet {
 
     @Override
     public void handle(RoutingContext rc) {
-        rc.put("start", System.currentTimeMillis());
         List<RunnableFuture<Void>> rfs = new ArrayList<>();
         if (getClass().isAnnotationPresent(Jdbc.class)) {
             rfs.add(fut -> setupDatabase(rc, Jdbc.class.getSimpleName(), fut));
