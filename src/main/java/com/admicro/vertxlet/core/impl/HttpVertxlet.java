@@ -2,12 +2,14 @@ package com.admicro.vertxlet.core.impl;
 
 import com.admicro.vertxlet.core.IHttpVertxlet;
 import com.admicro.vertxlet.core.RunnableFuture;
-import com.admicro.vertxlet.core.db.impl.DbConnectorFactory;
 import com.admicro.vertxlet.core.db.IDbConnector;
 import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
+import com.admicro.vertxlet.core.db.impl.DbConnectorFactory;
 import com.admicro.vertxlet.util.TaskRunner;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
@@ -161,6 +163,11 @@ public class HttpVertxlet implements IHttpVertxlet {
                 rc.fail(e);
             }
         }
+    }
+
+    protected <T> void executeBlocking(Handler<Future<T>> blockingHandler,
+                                       Handler<AsyncResult<T>> resultHandler) {
+        vertx.executeBlocking(blockingHandler, false, resultHandler);
     }
 
     private void setupDatabase(RoutingContext rc, String type, Future<Void> future) {
