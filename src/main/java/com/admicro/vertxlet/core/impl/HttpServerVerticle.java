@@ -11,6 +11,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
 import org.reflections.Reflections;
 
@@ -40,6 +41,9 @@ public class HttpServerVerticle extends AbstractVerticle {
         // Vert.x-Web has cookies support using the CookieHandler.
         // Make sure a cookie handler is on a matching route for any requests
         router.route().handler(CookieHandler.create());
+
+        // Prepare entire HTTP request body
+        router.route().handler(BodyHandler.create());
 
         router.route().handler(rc -> {
             // Map for save IDbAdaptor instances, using for clean up
