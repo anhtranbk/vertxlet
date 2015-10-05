@@ -68,13 +68,17 @@ public class HttpVertxlet implements IHttpVertxlet {
             rfs.add(fut -> setupDatabase(rc, Redis.class.getSimpleName(), fut));
         }
 
-        TaskRunner.executeParallel(rfs, ar -> {
-            if (ar.failed()) {
-                rc.fail(ar.cause());
-            } else {
-                routeByMethod(rc);
-            }
-        });
+        if(!rfs.isEmpty()) {
+            TaskRunner.executeParallel(rfs, ar -> {
+                if (ar.failed()) {
+                    rc.fail(ar.cause());
+                } else {
+                    routeByMethod(rc);
+                }
+            });
+        } else {
+            routeByMethod(rc);
+        }
     }
 
     @Override
