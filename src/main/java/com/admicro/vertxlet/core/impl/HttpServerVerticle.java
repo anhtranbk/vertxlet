@@ -9,6 +9,7 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CookieHandler;
 import org.reflections.Reflections;
@@ -36,14 +37,14 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
         Router router = Router.router(vertx);
 
+        // Vert.x-Web has cookies support using the CookieHandler.
+        // Make sure a cookie handler is on a matching route for any requests
+        router.route().handler(CookieHandler.create());
+
         router.route().handler(rc -> {
             // Map for save IDbAdaptor instances, using for clean up
             Map<String, IDbConnector> iDbAdaptorMap = new HashMap<>();
             rc.put(DATABASE_KEY, iDbAdaptorMap);
-
-            // Vert.x-Web has cookies support using the CookieHandler.
-            // Make sure a cookie handler is on a matching route for any requests
-            CookieHandler.create();
 
             rc.addHeadersEndHandler(Future::complete);
             // Route this context to the next matching route (if any)
