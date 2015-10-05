@@ -9,10 +9,12 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.LoggerHandler;
+import io.vertx.ext.web.handler.ResponseTimeHandler;
+import io.vertx.ext.web.handler.TimeoutHandler;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -44,6 +46,22 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         // Prepare entire HTTP request body
         router.route().handler(BodyHandler.create());
+
+        // set TimeoutHandler for all requests
+        _logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
+        router.route().handler(TimeoutHandler.create(options.timeout()));
+
+        // add ResponseTimeHandler for testing server performance
+        if (options.isEnableReponseTimeHandler()) {
+            _logger.debug("ResponseTimeHandler is enabled");
+            router.route().handler(ResponseTimeHandler.create());
+        }
+
+        // add default LoggerHandler for all incoming requests
+        if (options.isEnableLoggerHandler()) {
+            _logger.debug("LoggerHandler is enabled");
+            router.route().handler(LoggerHandler.create(false, LoggerHandler.Format.DEFAULT));
+        }
 
         router.route().handler(rc -> {
             // Map for save IDbAdaptor instances, using for clean up
@@ -80,10 +98,10 @@ public class HttpServerVerticle extends AbstractVerticle {
         initFuture.setHandler(ar -> {
             if (ar.succeeded()) {
                 HttpServer server = vertx.createHttpServer();
-                server.requestHandler(router::accept).listen(options.getPort(), options.getAddress(), res -> {
+                server.requestHandler(router::accept).listen(options.port(), options.address(), res -> {
                     if (res.succeeded()) {
                         _logger.info(String.format("Http server started at [%s:%d]",
-                                options.getAddress(), options.getPort()));
+                                options.address(), options.port()));
                         startFuture.complete();
                     } else {
                         startFuture.fail(res.cause());
