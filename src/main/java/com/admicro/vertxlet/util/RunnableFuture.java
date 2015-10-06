@@ -1,4 +1,4 @@
-package com.admicro.vertxlet.core;
+package com.admicro.vertxlet.util;
 
 import io.vertx.core.Future;
 

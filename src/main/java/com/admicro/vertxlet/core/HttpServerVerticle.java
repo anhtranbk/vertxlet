@@ -1,8 +1,10 @@
-package com.admicro.vertxlet.core.impl;
+package com.admicro.vertxlet.core;
 
-import com.admicro.vertxlet.core.IHttpVertxlet;
-import com.admicro.vertxlet.core.RequestMapping;
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.db.DatabaseHandler;
+import com.admicro.vertxlet.core.db.Jdbc;
+import com.admicro.vertxlet.core.db.Redis;
+import com.admicro.vertxlet.core.handler.FailureHandler;
+import com.admicro.vertxlet.core.handler.InitializeHandler;
 import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -40,56 +42,29 @@ public class HttpServerVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) throws Exception {
         Router router = Router.router(vertx);
 
-        // Vert.x-Web has cookies support using the CookieHandler.
-        // Make sure a cookie handler is on a matching route for any requests
         router.route().handler(CookieHandler.create());
-
-        // Prepare entire HTTP request body
         router.route().handler(BodyHandler.create());
 
-        // set TimeoutHandler for all requests
         _logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
         router.route().handler(TimeoutHandler.create(options.timeout()));
 
-        // add ResponseTimeHandler for testing server performance
         if (options.isEnableReponseTimeHandler()) {
             _logger.debug("ResponseTimeHandler is enabled");
             router.route().handler(ResponseTimeHandler.create());
         }
 
-        // add default LoggerHandler for all incoming requests
         if (options.isEnableLoggerHandler()) {
             _logger.debug("LoggerHandler is enabled");
             router.route().handler(LoggerHandler.create(false, LoggerHandler.Format.DEFAULT));
         }
 
-        router.route().handler(rc -> {
-            // Map for save IDbAdaptor instances, using for clean up
-            Map<String, IDbConnector> iDbAdaptorMap = new HashMap<>();
-            rc.put(DATABASE_KEY, iDbAdaptorMap);
-
-            rc.addHeadersEndHandler(Future::complete);
-            // Route this context to the next matching route (if any)
-            rc.next();
-        }).failureHandler(rc -> {
-            _logger.error("Unexpected error occur", rc.failure());
-
-            // Guarantee db connections is closed when error occurs
-            Map<String, IDbConnector> iDbAdaptorMap = rc.get(DATABASE_KEY);
-            for (IDbConnector adaptor : iDbAdaptorMap.values()) {
-                adaptor.close(v -> {
-                });
-            }
-
-            rc.response().putHeader("content-type", "text/html")
-                    .setStatusCode(500).end("<html><h1>Server internal error</h1></html>");
-        });
+        router.route().handler(InitializeHandler.create()).failureHandler(FailureHandler.create());
 
         try {
             scanForMappingUrl(router);
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | InstantiationException e) {
-            _logger.error(e.getMessage(), e);
+            _logger.error("Error when scan urls", e);
             startFuture.fail(e);
             return;
         }
@@ -146,13 +121,22 @@ public class HttpServerVerticle extends AbstractVerticle {
                 servlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
                 servlet.setContext(vertx, this);
             } catch (ClassCastException e) {
-                _logger.error(e.getMessage(), e);
+                _logger.error(null, e);
                 continue;
             }
 
             for (String url : clazz.getAnnotation(RequestMapping.class).url()) {
                 _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                 mappingUrls.put(url, servlet);
+
+                if (clazz.isAnnotationPresent(Jdbc.class)) {
+                    router.route(url).handler(DatabaseHandler.create(Jdbc.class.getSimpleName()));
+                }
+
+                if (clazz.isAnnotationPresent(Redis.class)) {
+                    router.route(url).handler(DatabaseHandler.create(Redis.class.getSimpleName()));
+                }
+
                 router.route(url).handler(servlet::handle);
             }
         }

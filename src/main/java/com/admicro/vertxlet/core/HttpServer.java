@@ -1,12 +1,8 @@
 package com.admicro.vertxlet.core;
 
-import com.admicro.vertxlet.core.impl.HttpServerVerticle;
-import com.admicro.vertxlet.core.impl.ServerOptions;
 import com.admicro.vertxlet.util.FileUtils;
 import com.admicro.vertxlet.util.XmlConverter;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;

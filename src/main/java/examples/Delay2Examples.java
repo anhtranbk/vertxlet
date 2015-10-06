@@ -1,7 +1,7 @@
 package examples;
 
 import com.admicro.vertxlet.core.RequestMapping;
-import com.admicro.vertxlet.core.impl.HttpVertxlet;
+import com.admicro.vertxlet.core.HttpVertxlet;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
