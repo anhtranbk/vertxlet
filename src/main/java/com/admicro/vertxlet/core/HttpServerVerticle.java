@@ -130,11 +130,11 @@ public class HttpServerVerticle extends AbstractVerticle {
                 mappingUrls.put(url, servlet);
 
                 if (clazz.isAnnotationPresent(Jdbc.class)) {
-                    router.route(url).handler(DatabaseHandler.create(Jdbc.class.getSimpleName()));
+                    router.route(url).handler(DatabaseHandler.create(Jdbc.class));
                 }
 
                 if (clazz.isAnnotationPresent(Redis.class)) {
-                    router.route(url).handler(DatabaseHandler.create(Redis.class.getSimpleName()));
+                    router.route(url).handler(DatabaseHandler.create(Redis.class));
                 }
 
                 router.route(url).handler(servlet::handle);

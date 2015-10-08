@@ -1,10 +1,14 @@
 package com.admicro.vertxlet.core.db;
 
+import com.admicro.vertxlet.core.db.impl.JdbcConnector;
+import com.admicro.vertxlet.core.db.impl.RedisConnector;
 import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+
+import java.lang.annotation.Annotation;
 
 public interface IDbConnector {
 
@@ -20,4 +24,12 @@ public interface IDbConnector {
 
     static final IllegalStateException NOT_INITIALIZED_EXCEPTION = new IllegalStateException(
             "Database instance has not been initialized");
+
+    static IDbConnector create(Class<? extends Annotation> clazz) {
+        if (Jdbc.class.equals(clazz)) {
+            return new JdbcConnector();
+        } else if (Redis.class.equals(clazz)) {
+            return new RedisConnector();
+        } else return null;
+    }
 }

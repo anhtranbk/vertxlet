@@ -3,26 +3,27 @@ package com.admicro.vertxlet.core.db.impl;
 import com.admicro.vertxlet.core.HttpServerVerticle;
 import com.admicro.vertxlet.core.db.DatabaseHandler;
 import com.admicro.vertxlet.core.db.IDbConnector;
-import com.admicro.vertxlet.core.db.impl.DbConnectorFactory;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 
 public class DatabaseHandlerImpl implements DatabaseHandler {
 
-    private String dbName;
+    private Class<? extends Annotation> clazz;
 
-    public DatabaseHandlerImpl(String dbName) {
-        this.dbName = dbName;
+    public DatabaseHandlerImpl(Class<? extends Annotation> clazz) {
+        this.clazz = clazz;
     }
 
     @Override
     public void handle(RoutingContext rc) {
-        IDbConnector adaptor = DbConnectorFactory.iDbAdaptor(dbName);
-        JsonObject config = getDatabaseConfig(rc.vertx()).getJsonObject(dbName.toLowerCase());
+        String className = clazz.getSimpleName();
+        IDbConnector adaptor = IDbConnector.create(clazz);
+        if (adaptor == null) return;
 
         Future<Void> future = Future.future();
         future.setHandler(ar -> {
@@ -33,12 +34,13 @@ public class DatabaseHandlerImpl implements DatabaseHandler {
             }
         });
 
+        JsonObject config = getDatabaseConfig(rc.vertx()).getJsonObject(className.toLowerCase());
         adaptor.openConnection(rc.vertx(), config, ar -> {
             if (ar.failed()) {
                 future.fail(ar.cause());
             } else {
                 Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
-                map.put(dbName, adaptor);
+                map.put(className, adaptor);
                 rc.addHeadersEndHandler(fut -> { // close db connection when process done
                     adaptor.close(v -> {
                     });
