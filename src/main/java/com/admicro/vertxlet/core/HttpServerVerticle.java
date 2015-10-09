@@ -8,7 +8,6 @@ import com.admicro.vertxlet.core.handler.InitializeHandler;
 import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -69,24 +68,17 @@ public class HttpServerVerticle extends AbstractVerticle {
             return;
         }
 
-        Future<Void> initFuture = Future.future();
-        initFuture.setHandler(ar -> {
-            if (ar.succeeded()) {
-                HttpServer server = vertx.createHttpServer();
-                server.requestHandler(router::accept).listen(options.port(), options.address(), res -> {
+        vertx.createHttpServer()
+                .requestHandler(router::accept)
+                .listen(options.port(), options.address(), res -> {
                     if (res.succeeded()) {
                         _logger.info(String.format("Http server started at [%s:%d]",
                                 options.address(), options.port()));
-                        startFuture.complete();
+                        initializeVertxlet(startFuture);
                     } else {
                         startFuture.fail(res.cause());
                     }
                 });
-            } else {
-                startFuture.fail(ar.cause());
-            }
-        });
-        callInitVertxlet(initFuture);
     }
 
     @Override
@@ -116,10 +108,10 @@ public class HttpServerVerticle extends AbstractVerticle {
     private void scanForMappingUrl(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
         for (Class<?> clazz : reflections.getTypesAnnotatedWith(RequestMapping.class)) {
-            IHttpVertxlet servlet;
+            IHttpVertxlet vertxlet;
             try {
-                servlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
-                servlet.setContext(vertx, this);
+                vertxlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
+                vertxlet.setContext(vertx, this);
             } catch (ClassCastException e) {
                 _logger.error(null, e);
                 continue;
@@ -127,7 +119,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
             for (String url : clazz.getAnnotation(RequestMapping.class).url()) {
                 _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
-                mappingUrls.put(url, servlet);
+                mappingUrls.put(url, vertxlet);
 
                 if (clazz.isAnnotationPresent(Jdbc.class)) {
                     router.route(url).handler(DatabaseHandler.create(Jdbc.class));
@@ -137,29 +129,29 @@ public class HttpServerVerticle extends AbstractVerticle {
                     router.route(url).handler(DatabaseHandler.create(Redis.class));
                 }
 
-                router.route(url).handler(servlet::handle);
+                router.route(url).handler(vertxlet::handle);
             }
         }
     }
 
-    private void callInitVertxlet(Future<Void> initFuture) {
+    private void initializeVertxlet(Future<Void> fut) {
         AtomicInteger count = new AtomicInteger(mappingUrls.size());
         if (count.get() <= 0) {
-            initFuture.complete();
+            fut.complete();
             return;
         }
 
         for (String key : mappingUrls.keySet()) {
             Future<Integer> future = Future.future();
-            vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).init(future));
+            vertx.runOnContext(v -> mappingUrls.get(key).init(future));
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
                         _logger.info("All vertxlet init succeeded");
-                        initFuture.complete();
+                        fut.complete();
                     }
                 } else {
-                    initFuture.fail(ar.cause());
+                    fut.fail(ar.cause());
                 }
             });
         }
