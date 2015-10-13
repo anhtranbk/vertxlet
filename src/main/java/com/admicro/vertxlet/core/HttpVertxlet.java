@@ -126,4 +126,9 @@ public class HttpVertxlet implements IHttpVertxlet {
                                        Handler<AsyncResult<T>> resultHandler) {
         vertx.executeBlocking(blockingHandler, false, resultHandler);
     }
+
+    protected <T> void executeBlocking(Handler<Future<T>> blockingHandler, boolean ordered,
+                                       Handler<AsyncResult<T>> resultHandler) {
+        vertx.executeBlocking(blockingHandler, ordered, resultHandler);
+    }
 }
