@@ -5,6 +5,7 @@ import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
 import com.admicro.vertxlet.core.handler.FailureHandler;
 import com.admicro.vertxlet.core.handler.InitializeHandler;
+import com.admicro.vertxlet.core.mvc.ControllerDispatcher;
 import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -30,7 +31,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     static final Logger _logger = LoggerFactory.getLogger(HttpServerVerticle.class);
 
-    private final Map<String, IHttpVertxlet> mappingUrls = new HashMap<>();
+    private final Map<String, IHttpVertxlet> vertxletMap = new HashMap<>();
     private ServerOptions options;
 
     public HttpServerVerticle(ServerOptions options) {
@@ -60,9 +61,10 @@ public class HttpServerVerticle extends AbstractVerticle {
         router.route().handler(InitializeHandler.create()).failureHandler(FailureHandler.create());
 
         try {
-            scanForMappingUrl(router);
-        } catch (NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException | InstantiationException e) {
+            scanVertxlet(router);
+            ControllerDispatcher.init(router);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
+                | InstantiationException | VertxletException e) {
             _logger.error("Error when scan urls", e);
             startFuture.fail(e);
             return;
@@ -83,15 +85,15 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     @Override
     public void stop(Future<Void> stopFuture) throws Exception {
-        AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        AtomicInteger count = new AtomicInteger(vertxletMap.size());
         if (count.get() <= 0) {
             stopFuture.complete();
             return;
         }
 
-        for (String key : mappingUrls.keySet()) {
+        for (String key : vertxletMap.keySet()) {
             Future<Void> future = Future.future();
-            vertx.getOrCreateContext().runOnContext(v -> mappingUrls.get(key).destroy(future));
+            vertx.getOrCreateContext().runOnContext(v -> vertxletMap.get(key).destroy(future));
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
@@ -105,9 +107,9 @@ public class HttpServerVerticle extends AbstractVerticle {
         }
     }
 
-    private void scanForMappingUrl(Router router) throws Exception {
+    private void scanVertxlet(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
-        for (Class<?> clazz : reflections.getTypesAnnotatedWith(RequestMapping.class)) {
+        for (Class<?> clazz : reflections.getTypesAnnotatedWith(Vertxlet.class)) {
             IHttpVertxlet vertxlet;
             try {
                 vertxlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
@@ -117,9 +119,9 @@ public class HttpServerVerticle extends AbstractVerticle {
                 continue;
             }
 
-            for (String url : clazz.getAnnotation(RequestMapping.class).url()) {
+            for (String url : clazz.getAnnotation(Vertxlet.class).url()) {
                 _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
-                mappingUrls.put(url, vertxlet);
+                vertxletMap.put(url, vertxlet);
 
                 if (clazz.isAnnotationPresent(Jdbc.class)) {
                     router.route(url).handler(DatabaseHandler.create(Jdbc.class));
@@ -135,15 +137,15 @@ public class HttpServerVerticle extends AbstractVerticle {
     }
 
     private void initializeVertxlet(Future<Void> fut) {
-        AtomicInteger count = new AtomicInteger(mappingUrls.size());
+        AtomicInteger count = new AtomicInteger(vertxletMap.size());
         if (count.get() <= 0) {
             fut.complete();
             return;
         }
 
-        for (String key : mappingUrls.keySet()) {
+        for (String key : vertxletMap.keySet()) {
             Future<Integer> future = Future.future();
-            vertx.runOnContext(v -> mappingUrls.get(key).init(future));
+            vertx.runOnContext(v -> vertxletMap.get(key).init(future));
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {

@@ -16,6 +16,7 @@ public class FailureHandlerImpl implements FailureHandler {
     @Override
     public void handle(RoutingContext rc) {
         _logger.error("Unexpected error occur", rc.failure());
+        rc.fail(new Exception());
 
         // Guarantee db connections is closed when error occurs
         Map<String, IDbConnector> iDbAdaptorMap = rc.get(HttpServerVerticle.DATABASE_KEY);

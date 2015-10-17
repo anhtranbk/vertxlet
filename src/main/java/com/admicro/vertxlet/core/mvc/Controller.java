@@ -1,4 +1,4 @@
-package com.admicro.vertxlet.core;
+package com.admicro.vertxlet.core.mvc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface RequestMapping {
+public @interface Controller {
 
-    String[] url() default {};
+    String value() default "/";
 }

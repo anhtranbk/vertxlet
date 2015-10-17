@@ -27,6 +27,7 @@ public interface HttpServer {
         HttpServer.startNew(HttpContext.defaultContext());
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     public static void startNew(HttpContext serverContext) throws VertxletException {
         try {
             final ClassLoader cl = HttpServer.class.getClassLoader();
@@ -78,7 +79,10 @@ public interface HttpServer {
                     : new DeploymentOptions();
             vertx.deployVerticle(server, deploymentOptions, ar -> {
                 if (ar.failed()) {
-                    vertx.close(v -> System.err.println("Error when deploy verticle, vertx closed"));
+                    vertx.close(v -> {
+                        System.err.println("Error when deploy verticle, vertx closed");
+                        ar.cause().printStackTrace();
+                    });
                 }
             });
         } catch (IOException | ParserConfigurationException | SAXException | NullPointerException e) {

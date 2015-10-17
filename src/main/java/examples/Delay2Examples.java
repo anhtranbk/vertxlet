@@ -1,12 +1,12 @@
 package examples;
 
-import com.admicro.vertxlet.core.RequestMapping;
+import com.admicro.vertxlet.core.Vertxlet;
 import com.admicro.vertxlet.core.HttpVertxlet;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
 
-@RequestMapping(url = {"/server-load/delay/:delay"})
+@Vertxlet(url = {"/server-load/delay/:delay"})
 public class Delay2Examples extends HttpVertxlet {
 
     private static final Logger _logger = LoggerFactory.getLogger(Delay2Examples.class);
