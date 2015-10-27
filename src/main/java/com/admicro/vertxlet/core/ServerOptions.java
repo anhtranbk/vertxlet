@@ -41,7 +41,7 @@ public class ServerOptions {
         return enableLoggerHandler;
     }
 
-    public boolean isEnableReponseTimeHandler() {
+    public boolean isEnableResponseTimeHandler() {
         return enableResponseTimeHandler;
     }
 }

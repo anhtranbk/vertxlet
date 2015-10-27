@@ -5,7 +5,7 @@ import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
 import com.admicro.vertxlet.core.handler.FailureHandler;
 import com.admicro.vertxlet.core.handler.InitializeHandler;
-import com.admicro.vertxlet.core.mvc.ControllerDispatcher;
+import com.admicro.vertxlet.core.mvc.RequestDispatcher;
 import com.admicro.vertxlet.util.SimpleClassLoader;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -48,7 +48,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         _logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
         router.route().handler(TimeoutHandler.create(options.timeout()));
 
-        if (options.isEnableReponseTimeHandler()) {
+        if (options.isEnableResponseTimeHandler()) {
             _logger.debug("ResponseTimeHandler is enabled");
             router.route().handler(ResponseTimeHandler.create());
         }
@@ -62,7 +62,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         try {
             scanVertxlet(router);
-            ControllerDispatcher.init(router);
+            RequestDispatcher.init(router);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
                 | InstantiationException | VertxletException e) {
             _logger.error("Error when scan urls", e);

@@ -11,9 +11,9 @@ import org.reflections.Reflections;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ControllerDispatcher {
+public class RequestDispatcher {
 
-    private static final Logger _logger = LoggerFactory.getLogger(ControllerDispatcher.class);
+    private static final Logger _logger = LoggerFactory.getLogger(RequestDispatcher.class);
 
     public static void init(Router router) throws VertxletException{
         final Reflections reflections = new Reflections("");
