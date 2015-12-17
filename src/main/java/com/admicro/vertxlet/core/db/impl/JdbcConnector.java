@@ -1,7 +1,6 @@
 package com.admicro.vertxlet.core.db.impl;
 
 import com.admicro.vertxlet.core.db.IDbConnector;
-import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -15,8 +14,8 @@ public class JdbcConnector implements IDbConnector {
     private SQLConnection con;
 
     @Override
-    public void openConnection(@NotNull Vertx vertx, @NotNull JsonObject config,
-                               @NotNull Handler<AsyncResult<Void>> handler) {
+    public void openConnection(Vertx vertx, JsonObject config,
+                               Handler<AsyncResult<Void>> handler) {
 
         JDBCClient.createShared(vertx, config).getConnection(ar -> {
             if (ar.failed()) {

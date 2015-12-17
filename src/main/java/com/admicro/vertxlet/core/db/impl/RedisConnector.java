@@ -1,7 +1,6 @@
 package com.admicro.vertxlet.core.db.impl;
 
 import com.admicro.vertxlet.core.db.IDbConnector;
-import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -14,8 +13,8 @@ public class RedisConnector implements IDbConnector {
     private RedisClient redis;
 
     @Override
-    public void openConnection(@NotNull Vertx vertx, @NotNull JsonObject config,
-                               @NotNull Handler<AsyncResult<Void>> handler) {
+    public void openConnection(Vertx vertx, JsonObject config,
+                               Handler<AsyncResult<Void>> handler) {
         redis = RedisClient.create(vertx, config);
         handler.handle(Future.succeededFuture());
     }

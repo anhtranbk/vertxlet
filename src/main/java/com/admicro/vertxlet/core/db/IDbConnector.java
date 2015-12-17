@@ -2,7 +2,6 @@ package com.admicro.vertxlet.core.db;
 
 import com.admicro.vertxlet.core.db.impl.JdbcConnector;
 import com.admicro.vertxlet.core.db.impl.RedisConnector;
-import com.sun.istack.internal.NotNull;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -12,8 +11,8 @@ import java.lang.annotation.Annotation;
 
 public interface IDbConnector {
 
-    void openConnection(@NotNull Vertx vertx, @NotNull JsonObject config,
-                        @NotNull Handler<AsyncResult<Void>> handler);
+    void openConnection(Vertx vertx, JsonObject config,
+                        Handler<AsyncResult<Void>> handler);
     <T> T getInstance();
     void close(Handler<AsyncResult<Void>> handler);
 
