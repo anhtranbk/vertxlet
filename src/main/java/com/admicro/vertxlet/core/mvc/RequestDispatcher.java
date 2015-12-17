@@ -44,6 +44,7 @@ public class RequestDispatcher {
                         throw new VertxletException("Path must be start with /");
                     }
                     for (HttpMethod httpMethod : httpMethods) {
+                        if (controllerUrl.equals("/")) controllerUrl = "";
                         router.route(httpMethod, controllerUrl + path).handler(rc -> {
                             try {
                                 method.invoke(controller, rc);
