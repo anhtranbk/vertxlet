@@ -21,7 +21,8 @@ public interface IDbConnector {
         });
     }
 
-    static final IllegalStateException NOT_INITIALIZED_EXCEPTION = new IllegalStateException(
+    @SuppressWarnings("ThrowableInstanceNeverThrown")
+    IllegalStateException NOT_INITIALIZED_EXCEPTION = new IllegalStateException(
             "Database instance has not been initialized");
 
     static IDbConnector create(Class<? extends Annotation> clazz) {

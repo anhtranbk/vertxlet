@@ -6,7 +6,6 @@ import com.admicro.vertxlet.core.db.Redis;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -19,12 +18,10 @@ import java.util.Map;
 public class HttpVertxlet implements IHttpVertxlet {
 
     private Vertx vertx;
-    private Verticle verticle;
 
     @Override
-    public void setContext(Vertx vertx, Verticle verticle) {
+    public void setContext(Vertx vertx) {
         this.vertx = vertx;
-        this.verticle = verticle;
     }
 
     @Override
@@ -75,10 +72,6 @@ public class HttpVertxlet implements IHttpVertxlet {
     @Override
     public final Vertx getVertx() {
         return vertx;
-    }
-
-    public final Verticle getVerticle() {
-        return verticle;
     }
 
     protected void init() throws Exception {

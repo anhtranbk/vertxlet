@@ -113,7 +113,7 @@ public class HttpServerVerticle extends AbstractVerticle {
             IHttpVertxlet vertxlet;
             try {
                 vertxlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
-                vertxlet.setContext(vertx, this);
+                vertxlet.setContext(vertx);
             } catch (ClassCastException e) {
                 _logger.error(null, e);
                 continue;
