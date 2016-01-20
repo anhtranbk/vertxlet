@@ -24,17 +24,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HttpServerVerticle extends AbstractVerticle {
+public class ServerVerticle extends AbstractVerticle {
 
     public static final String DATABASE_KEY = "db";
-    public static final String DEFAULT_SHARE_LOCAL_MAP = HttpServerVerticle.class.getName();
+    public static final String DEFAULT_SHARE_LOCAL_MAP = ServerVerticle.class.getName();
 
-    static final Logger _logger = LoggerFactory.getLogger(HttpServerVerticle.class);
+    static final Logger _logger = LoggerFactory.getLogger(ServerVerticle.class);
 
-    private final Map<String, IHttpVertxlet> vertxletMap = new HashMap<>();
+    private final Map<String, Vertxlet> vertxletMap = new HashMap<>();
     private ServerOptions options;
 
-    public HttpServerVerticle(ServerOptions options) {
+    public ServerVerticle(ServerOptions options) {
         this.options = options;
     }
 
@@ -109,17 +109,17 @@ public class HttpServerVerticle extends AbstractVerticle {
 
     private void scanVertxlet(Router router) throws Exception {
         final Reflections reflections = new Reflections("");
-        for (Class<?> clazz : reflections.getTypesAnnotatedWith(Vertxlet.class)) {
-            IHttpVertxlet vertxlet;
+        for (Class<?> clazz : reflections.getTypesAnnotatedWith(VertxletMapping.class)) {
+            Vertxlet vertxlet;
             try {
-                vertxlet = (IHttpVertxlet) SimpleClassLoader.loadClass(clazz);
+                vertxlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
                 vertxlet.setContext(vertx);
             } catch (ClassCastException e) {
                 _logger.error(null, e);
                 continue;
             }
 
-            for (String url : clazz.getAnnotation(Vertxlet.class).url()) {
+            for (String url : clazz.getAnnotation(VertxletMapping.class).url()) {
                 _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                 vertxletMap.put(url, vertxlet);
 

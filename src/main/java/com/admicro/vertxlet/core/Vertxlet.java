@@ -1,13 +1,22 @@
 package com.admicro.vertxlet.core;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.ext.web.RoutingContext;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-public @interface Vertxlet {
+public interface Vertxlet {
 
-    String[] url() default {};
+    void setContext(Vertx vertx);
+
+    default <T> void init(Future<T> future) {
+        future.complete();
+    }
+
+    default <T> void destroy(Future<T> future) {
+        future.complete();
+    }
+
+    void handle(RoutingContext routingContext);
+
+    Vertx getVertx();
 }

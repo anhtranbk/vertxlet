@@ -1,6 +1,6 @@
 package com.admicro.vertxlet.core;
 
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.db.DbConnector;
 import com.admicro.vertxlet.core.db.Jdbc;
 import com.admicro.vertxlet.core.db.Redis;
 import io.vertx.core.AsyncResult;
@@ -15,7 +15,7 @@ import io.vertx.redis.RedisClient;
 
 import java.util.Map;
 
-public class HttpVertxlet implements IHttpVertxlet {
+public abstract class AbstractVertxlet implements Vertxlet {
 
     private Vertx vertx;
 
@@ -101,18 +101,18 @@ public class HttpVertxlet implements IHttpVertxlet {
     }
 
     protected SQLConnection getSqlConnection(RoutingContext rc) throws NullPointerException {
-        Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+        Map<String, DbConnector> map = rc.get(ServerVerticle.DATABASE_KEY);
         return map.get(Jdbc.class.getSimpleName()).getInstance();
     }
 
     protected RedisClient getRedisClient(RoutingContext rc) throws NullPointerException {
-        Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+        Map<String, DbConnector> map = rc.get(ServerVerticle.DATABASE_KEY);
         return map.get(Redis.class.getSimpleName()).getInstance();
     }
 
     protected final JsonObject getDatabaseConfig() {
         return (JsonObject) vertx.sharedData().getLocalMap(
-                HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
+                ServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
     }
 
     protected <T> void executeBlocking(Handler<Future<T>> blockingHandler,

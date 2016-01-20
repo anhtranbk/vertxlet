@@ -1,11 +1,11 @@
 package examples;
 
-import com.admicro.vertxlet.core.HttpVertxlet;
-import com.admicro.vertxlet.core.Vertxlet;
+import com.admicro.vertxlet.core.AbstractVertxlet;
+import com.admicro.vertxlet.core.VertxletMapping;
 import io.vertx.ext.web.RoutingContext;
 
-@Vertxlet(url = {"/id/:id"})
-public class HelloExamples extends HttpVertxlet {
+@VertxletMapping(url = {"/id/:id"})
+public class HelloExamples extends AbstractVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {

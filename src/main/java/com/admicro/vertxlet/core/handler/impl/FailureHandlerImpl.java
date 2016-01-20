@@ -1,8 +1,8 @@
 package com.admicro.vertxlet.core.handler.impl;
 
 import com.admicro.vertxlet.core.handler.FailureHandler;
-import com.admicro.vertxlet.core.HttpServerVerticle;
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.ServerVerticle;
+import com.admicro.vertxlet.core.db.DbConnector;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
@@ -17,8 +17,8 @@ public class FailureHandlerImpl implements FailureHandler {
     public void handle(RoutingContext rc) {
         _logger.error("Unexpected error occur", rc.failure());
         // Guarantee db connections is closed when error occurs
-        Map<String, IDbConnector> iDbAdaptorMap = rc.get(HttpServerVerticle.DATABASE_KEY);
-        for (IDbConnector adaptor : iDbAdaptorMap.values()) {
+        Map<String, DbConnector> iDbAdaptorMap = rc.get(ServerVerticle.DATABASE_KEY);
+        for (DbConnector adaptor : iDbAdaptorMap.values()) {
             adaptor.close(v -> {
             });
         }

@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 
 import java.lang.annotation.Annotation;
 
-public interface IDbConnector {
+public interface DbConnector {
 
     void openConnection(Vertx vertx, JsonObject config,
                         Handler<AsyncResult<Void>> handler);
@@ -25,7 +25,7 @@ public interface IDbConnector {
     IllegalStateException NOT_INITIALIZED_EXCEPTION = new IllegalStateException(
             "Database instance has not been initialized");
 
-    static IDbConnector create(Class<? extends Annotation> clazz) {
+    static DbConnector create(Class<? extends Annotation> clazz) {
         if (Jdbc.class.equals(clazz)) {
             return new JdbcConnector();
         } else if (Redis.class.equals(clazz)) {

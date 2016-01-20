@@ -1,6 +1,6 @@
 package com.admicro.vertxlet.core.db.impl;
 
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.db.DbConnector;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -8,7 +8,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 
-public class RedisConnector implements IDbConnector {
+public class RedisConnector implements DbConnector {
 
     private RedisClient redis;
 
@@ -23,7 +23,7 @@ public class RedisConnector implements IDbConnector {
     @SuppressWarnings("unchecked")
     public <T> T getInstance() {
         if (redis == null)
-            throw IDbConnector.NOT_INITIALIZED_EXCEPTION;
+            throw DbConnector.NOT_INITIALIZED_EXCEPTION;
         return (T) redis;
     }
 

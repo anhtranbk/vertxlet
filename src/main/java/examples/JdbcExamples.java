@@ -1,15 +1,15 @@
 package examples;
 
-import com.admicro.vertxlet.core.HttpVertxlet;
+import com.admicro.vertxlet.core.AbstractVertxlet;
 import com.admicro.vertxlet.core.db.Jdbc;
-import com.admicro.vertxlet.core.Vertxlet;
+import com.admicro.vertxlet.core.VertxletMapping;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 
 @Jdbc
-@Vertxlet(url = {"/jdbc/query/:id"})
-public class JdbcExamples extends HttpVertxlet {
+@VertxletMapping(url = {"/jdbc/query/:id"})
+public class JdbcExamples extends AbstractVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {

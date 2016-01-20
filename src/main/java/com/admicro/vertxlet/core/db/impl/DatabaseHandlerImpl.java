@@ -1,8 +1,8 @@
 package com.admicro.vertxlet.core.db.impl;
 
-import com.admicro.vertxlet.core.HttpServerVerticle;
+import com.admicro.vertxlet.core.ServerVerticle;
 import com.admicro.vertxlet.core.db.DatabaseHandler;
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.db.DbConnector;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -22,7 +22,7 @@ public class DatabaseHandlerImpl implements DatabaseHandler {
     @Override
     public void handle(RoutingContext rc) {
         String className = clazz.getSimpleName();
-        IDbConnector adaptor = IDbConnector.create(clazz);
+        DbConnector adaptor = DbConnector.create(clazz);
         if (adaptor == null) return;
 
         Future<Void> future = Future.future();
@@ -39,7 +39,7 @@ public class DatabaseHandlerImpl implements DatabaseHandler {
             if (ar.failed()) {
                 future.fail(ar.cause());
             } else {
-                Map<String, IDbConnector> map = rc.get(HttpServerVerticle.DATABASE_KEY);
+                Map<String, DbConnector> map = rc.get(ServerVerticle.DATABASE_KEY);
                 map.put(className, adaptor);
                 rc.addHeadersEndHandler(fut -> { // close db connection when process done
                     adaptor.close(v -> {
@@ -53,6 +53,6 @@ public class DatabaseHandlerImpl implements DatabaseHandler {
 
     private JsonObject getDatabaseConfig(Vertx vertx) {
         return (JsonObject) vertx.sharedData().getLocalMap(
-                HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
+                ServerVerticle.DEFAULT_SHARE_LOCAL_MAP).get("db_options");
     }
 }

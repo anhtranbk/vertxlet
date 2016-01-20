@@ -1,6 +1,6 @@
 package com.admicro.vertxlet.core.db.impl;
 
-import com.admicro.vertxlet.core.db.IDbConnector;
+import com.admicro.vertxlet.core.db.DbConnector;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -9,7 +9,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 
-public class JdbcConnector implements IDbConnector {
+public class JdbcConnector implements DbConnector {
 
     private SQLConnection con;
 
@@ -31,7 +31,7 @@ public class JdbcConnector implements IDbConnector {
     @SuppressWarnings("unchecked")
     public <T> T getInstance() {
         if (con == null)
-            throw IDbConnector.NOT_INITIALIZED_EXCEPTION;
+            throw DbConnector.NOT_INITIALIZED_EXCEPTION;
         return (T) con;
     }
 

@@ -1,11 +1,11 @@
 package examples;
 
-import com.admicro.vertxlet.core.HttpVertxlet;
-import com.admicro.vertxlet.core.Vertxlet;
+import com.admicro.vertxlet.core.AbstractVertxlet;
+import com.admicro.vertxlet.core.VertxletMapping;
 import io.vertx.ext.web.RoutingContext;
 
-@Vertxlet(url = {"/delay/:delay"})
-public class DelayExamples extends HttpVertxlet {
+@VertxletMapping(url = {"/delay/:delay"})
+public class DelayExamples extends AbstractVertxlet {
 
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {

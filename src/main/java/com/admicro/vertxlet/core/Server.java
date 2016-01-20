@@ -12,29 +12,29 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-public interface HttpServer {
+public interface Server {
 
-    static final String LOG4J_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.Log4jLogDelegateFactory";
-    static final String SLF4J_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.SLF4JLogDelegateFactory";
-    static final String JUL_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.JULLogDelegateFactory";
+    String LOG4J_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.Log4jLogDelegateFactory";
+    String SLF4J_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.SLF4JLogDelegateFactory";
+    String JUL_DELEGATE_FACTORY_CLASS = "io.vertx.core.logging.JULLogDelegateFactory";
 
-    static final String LOGGING_PROPERTY_KEY = "vertx.logger-delegate-factory-class-name";
+    String LOGGING_PROPERTY_KEY = "vertx.logger-delegate-factory-class-name";
 
-    static final String LOG4J = "log4j";
-    static final String SLF4J = "slf4j";
+    String LOG4J = "log4j";
+    String SLF4J = "slf4j";
 
-    public static void startNew() throws VertxletException {
-        HttpServer.startNew(HttpContext.defaultContext());
+    static void startNew() throws VertxletException {
+        Server.startNew(ServerContext.defaultContext());
     }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public static void startNew(HttpContext serverContext) throws VertxletException {
+    static void startNew(ServerContext serverContext) throws VertxletException {
         try {
-            final ClassLoader cl = HttpServer.class.getClassLoader();
+            final ClassLoader cl = Server.class.getClassLoader();
             String xmlContent = FileUtils.readAll(cl, serverContext.configurationPath())
                     .replaceAll("\t", "").replaceAll("\n", "").replaceAll(" ", "");
 
-            JsonObject config = XmlConverter.toJson(xmlContent, HttpContext.ROOT_TAG)
+            JsonObject config = XmlConverter.toJson(xmlContent, ServerContext.ROOT_TAG)
                     .getJsonObject("server");
 
             // apply system properties before create new Vert.x instance
@@ -64,14 +64,14 @@ public interface HttpServer {
             // apply database options
             if (config.containsKey("database_options")) {
                 JsonObject dbConfig = config.getJsonObject("database_options");
-                vertx.sharedData().getLocalMap(HttpServerVerticle.DEFAULT_SHARE_LOCAL_MAP)
+                vertx.sharedData().getLocalMap(ServerVerticle.DEFAULT_SHARE_LOCAL_MAP)
                         .put("db_options", dbConfig);
             }
 
             // apply server options
             ServerOptions options = (config.containsKey("server_options"))
                     ? new ServerOptions(config.getJsonObject("server_options")) : new ServerOptions();
-            Verticle server = new HttpServerVerticle(options);
+            Verticle server = new ServerVerticle(options);
 
             // apply deployment options
             DeploymentOptions deploymentOptions = (config.containsKey("deployment_options"))
