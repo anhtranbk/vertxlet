@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 
 public class RequestDispatcher {
 
-    private static final Logger _logger = LoggerFactory.getLogger(RequestDispatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
 
     public static void init(Router router) throws VertxletException{
         final Reflections reflections = new Reflections("");
@@ -28,7 +28,7 @@ public class RequestDispatcher {
             try {
                 controller = SimpleClassLoader.loadClass(clazz);
             } catch (Exception e) {
-                _logger.error(null, e);
+                logger.error(null, e);
                 continue;
             }
 
@@ -49,10 +49,10 @@ public class RequestDispatcher {
                             try {
                                 method.invoke(controller, rc);
                             } catch (IllegalAccessException | InvocationTargetException e) {
-                                _logger.error(null, e);
+                                logger.error(null, e);
                             }
                         });
-                        _logger.info(String.format("Mapping %s:%s with %s.%s()",
+                        logger.info(String.format("Mapping %s:%s with %s.%s()",
                                 httpMethod.toString(), controllerUrl + path,
                                 clazz.getSimpleName(), method.getName()));
                     }
