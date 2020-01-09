@@ -9,7 +9,7 @@ import io.vertx.ext.web.RoutingContext;
 @VertxletMapping(url = {"/server-load/delay/:delay"})
 public class Delay2Examples extends AbstractVertxlet {
 
-    private static final Logger _logger = LoggerFactory.getLogger(Delay2Examples.class);
+    private static final Logger logger = LoggerFactory.getLogger(Delay2Examples.class);
 
     @Override
     protected void doGet(RoutingContext rc) throws Exception {
@@ -18,10 +18,11 @@ public class Delay2Examples extends AbstractVertxlet {
             long delay = Long.parseLong(rc.request().getParam("delay"));
             try {
                 Thread.sleep(delay);
+                fut.complete();
             } catch (InterruptedException e) {
-                _logger.error("", e);
+                logger.error(e.getMessage());
+                fut.fail(e);
             }
-            fut.complete();
         }, false, ar -> rc.response().end("=>" + (System.currentTimeMillis() - start) + "\r\n"));
     }
 }

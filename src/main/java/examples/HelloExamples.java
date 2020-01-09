@@ -2,18 +2,24 @@ package examples;
 
 import com.admicro.vertxlet.core.AbstractVertxlet;
 import com.admicro.vertxlet.core.VertxletMapping;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
-@VertxletMapping(url = {"/id/:id"})
+@VertxletMapping(url = {"/id/:id", "/id"})
 public class HelloExamples extends AbstractVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) throws Exception {
-        String id = routingContext.request().getParam("id");
+    protected void doGet(RoutingContext rc) throws Exception {
+        String id = rc.request().getParam("id");
         if (id != null) {
-            routingContext.response().end("Hello, id=" + id);
+            JsonObject json = new JsonObject()
+                    .put("id", id)
+                    .put("ts", System.currentTimeMillis());
+            rc.response()
+                    .putHeader("Content-Type", "application/json")
+                    .end(json.toString());
         } else {
-            routingContext.response().end("Hello, current path: " + routingContext.request().path());
+            rc.response().end("Hello, current path: " + rc.request().path());
         }
     }
 

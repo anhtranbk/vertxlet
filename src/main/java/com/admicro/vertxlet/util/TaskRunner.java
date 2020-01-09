@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskRunner {
 
-    private static Logger _logger = LoggerFactory.getLogger(TaskRunner.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskRunner.class);
 
     public static <T> void loopParallel(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
-            _logger.warn("No tasks to run");
+            logger.warn("No tasks to run");
             handler.handle(Future.succeededFuture());
             return;
         }
@@ -30,7 +30,7 @@ public class TaskRunner {
 
     public static <T> void loopSequence(RunnableFuture<T> rf, int count, Handler<AsyncResult<T>> handler) {
         if (count <= 0) {
-            _logger.warn("No tasks to run");
+            logger.warn("No tasks to run");
             handler.handle(Future.succeededFuture());
             return;
         }
@@ -52,7 +52,7 @@ public class TaskRunner {
 
     public static <T> void executeParallel(List<RunnableFuture<T>> rfs, Handler<AsyncResult<T>> handler) {
         if (rfs.isEmpty()) {
-            _logger.warn("No tasks to run");
+            logger.warn("No tasks to run");
             handler.handle(Future.succeededFuture());
             return;
         }

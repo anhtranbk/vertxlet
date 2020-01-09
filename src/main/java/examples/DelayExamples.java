@@ -10,7 +10,8 @@ public class DelayExamples extends AbstractVertxlet {
     @Override
     protected void doGet(RoutingContext routingContext) throws Exception {
         long delay = Long.parseLong(routingContext.request().getParam("delay"));
-        getVertx().setTimer(delay, ar -> routingContext.response().end("=>" + delay + "\r\n"));
+        getVertx().setTimer(delay, ar -> routingContext.response()
+                .end("=>" + delay + "\r\n"));
     }
 
     @Override

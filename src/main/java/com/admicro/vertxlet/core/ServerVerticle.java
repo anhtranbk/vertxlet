@@ -29,7 +29,7 @@ public class ServerVerticle extends AbstractVerticle {
     public static final String DATABASE_KEY = "db";
     public static final String DEFAULT_SHARE_LOCAL_MAP = ServerVerticle.class.getName();
 
-    static final Logger _logger = LoggerFactory.getLogger(ServerVerticle.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerVerticle.class);
 
     private final Map<String, Vertxlet> vertxletMap = new HashMap<>();
     private ServerOptions options;
@@ -45,16 +45,16 @@ public class ServerVerticle extends AbstractVerticle {
         router.route().handler(CookieHandler.create());
         router.route().handler(BodyHandler.create());
 
-        _logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
+        logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
         router.route().handler(TimeoutHandler.create(options.timeout()));
 
         if (options.isEnableResponseTimeHandler()) {
-            _logger.debug("ResponseTimeHandler is enabled");
+            logger.debug("ResponseTimeHandler is enabled");
             router.route().handler(ResponseTimeHandler.create());
         }
 
         if (options.isEnableLoggerHandler()) {
-            _logger.debug("LoggerHandler is enabled");
+            logger.debug("LoggerHandler is enabled");
             router.route().handler(LoggerHandler.create(false, LoggerHandler.Format.DEFAULT));
         }
 
@@ -65,7 +65,7 @@ public class ServerVerticle extends AbstractVerticle {
             RequestDispatcher.init(router);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
                 | InstantiationException | VertxletException e) {
-            _logger.error("Error when scan urls", e);
+            logger.error("Error when scan urls", e);
             startFuture.fail(e);
             return;
         }
@@ -74,7 +74,7 @@ public class ServerVerticle extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(options.port(), options.address(), res -> {
                     if (res.succeeded()) {
-                        _logger.info(String.format("Http server started at [%s:%d]",
+                        logger.info(String.format("Http server started at [%s:%d]",
                                 options.address(), options.port()));
                         initializeVertxlet(startFuture);
                     } else {
@@ -97,7 +97,7 @@ public class ServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        _logger.info("All vertxlet destroy succeeded");
+                        logger.info("All vertxlet destroy succeeded");
                         stopFuture.complete();
                     }
                 } else {
@@ -115,12 +115,12 @@ public class ServerVerticle extends AbstractVerticle {
                 vertxlet = (Vertxlet) SimpleClassLoader.loadClass(clazz);
                 vertxlet.setContext(vertx);
             } catch (ClassCastException e) {
-                _logger.error(null, e);
+                logger.error(null, e);
                 continue;
             }
 
             for (String url : clazz.getAnnotation(VertxletMapping.class).url()) {
-                _logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
+                logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
                 vertxletMap.put(url, vertxlet);
 
                 if (clazz.isAnnotationPresent(Jdbc.class)) {
@@ -149,7 +149,7 @@ public class ServerVerticle extends AbstractVerticle {
             future.setHandler(ar -> {
                 if (ar.succeeded()) {
                     if (count.decrementAndGet() == 0) {
-                        _logger.info("All vertxlet init succeeded");
+                        logger.info("All vertxlet init succeeded");
                         fut.complete();
                     }
                 } else {

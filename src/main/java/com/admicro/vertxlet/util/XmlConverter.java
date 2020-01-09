@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class XmlConverter {
 
@@ -20,7 +21,7 @@ public class XmlConverter {
 
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = builder.parse(new InputSource(new ByteArrayInputStream(
-                xml.replaceAll("\n", "").getBytes("utf-8"))));
+                xml.replaceAll("\n", "").getBytes(StandardCharsets.UTF_8))));
 
         doc.getDocumentElement().normalize();
 

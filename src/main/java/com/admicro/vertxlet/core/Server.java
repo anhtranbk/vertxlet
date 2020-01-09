@@ -23,19 +23,21 @@ public interface Server {
     String LOG4J = "log4j";
     String SLF4J = "slf4j";
 
-    static void startNew() throws VertxletException {
-        Server.startNew(ServerContext.defaultContext());
+    String ROOT_TAG = "server";
+    String DEFAULT_CONFIG_PATH = "conf/server.xml";
+
+    static void start() {
+        Server.start(DEFAULT_CONFIG_PATH);
     }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    static void startNew(ServerContext serverContext) throws VertxletException {
+    static void start(String confPath) {
         try {
-            final ClassLoader cl = Server.class.getClassLoader();
-            String xmlContent = FileUtils.readAll(cl, serverContext.configurationPath())
-                    .replaceAll("\t", "").replaceAll("\n", "").replaceAll(" ", "");
+            String xmlContent = FileUtils.readAll(confPath)
+                    .replaceAll("\t", "")
+                    .replaceAll("\n", "")
+                    .replaceAll(" ", "");
 
-            JsonObject config = XmlConverter.toJson(xmlContent, ServerContext.ROOT_TAG)
-                    .getJsonObject("server");
+            JsonObject config = XmlConverter.toJson(xmlContent, ROOT_TAG).getJsonObject("server");
 
             // apply system properties before create new Vert.x instance
             JsonObject properties;
@@ -70,7 +72,8 @@ public interface Server {
 
             // apply server options
             ServerOptions options = (config.containsKey("server_options"))
-                    ? new ServerOptions(config.getJsonObject("server_options")) : new ServerOptions();
+                    ? new ServerOptions(config.getJsonObject("server_options"))
+                    : new ServerOptions();
             Verticle server = new ServerVerticle(options);
 
             // apply deployment options

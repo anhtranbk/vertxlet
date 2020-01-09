@@ -1,6 +1,6 @@
 package com.admicro.vertxlet.core;
 
-public class VertxletException extends Exception {
+public class VertxletException extends RuntimeException {
 
     public VertxletException(String message) {
         super(message);
