@@ -16,7 +16,7 @@ Make sure Maven has been installed on your workspace. Run the following command 
 
 Define your request mapping in one of the following styles:
 
-### Spring style controllers
+### Spring style Controllers
 
 ```java
 
