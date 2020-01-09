@@ -26,7 +26,7 @@ public class ControllerExamples {
     private static final Logger logger = LoggerFactory.getLogger(ControllerExamples.class);
 
     // Controller object created only once per Vertx context so you can keep
-    // session in Controller object properties
+    // session in Controller's object properties
     private final Map<String, Long> users = new HashMap<>();
 
     @RequestMapping(path = {"/login/:user", "/authenticate/:user"}, method = HttpMethod.GET)
@@ -92,7 +92,7 @@ public class HelloExamples extends AbstractVertxlet {
 
 ```
 
-Start Vertxlet server:
+### Start Vertxlet server:
 
 ```java
 
