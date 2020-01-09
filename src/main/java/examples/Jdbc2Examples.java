@@ -13,15 +13,15 @@ import io.vertx.ext.web.RoutingContext;
 public class Jdbc2Examples extends AbstractVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) throws Exception {
-        SQLConnection con = getSqlConnection(routingContext);
-        int value = Integer.parseInt(routingContext.request().getParam("value"));
+    protected void doGet(RoutingContext rc) throws Exception {
+        SQLConnection con = getSqlConnection(rc);
+        int value = Integer.parseInt(rc.request().getParam("value"));
 
         String st = "INSERT INTO random_value (value) VALUES (?)";
         JsonArray params = new JsonArray().add(value);
         con.updateWithParams(st, params, insert -> {
             if (insert.failed()) {
-                routingContext.fail(insert.cause());
+                rc.fail(insert.cause());
                 return;
             }
 
@@ -31,7 +31,7 @@ public class Jdbc2Examples extends AbstractVertxlet {
             sb.append("Number rows updated: ").append(ur.getUpdated()).append("\r\n");
             sb.append("Last id inserted: ").append(ur.getKeys().getInteger(0)).append("\r\n");
 
-            routingContext.response().end(sb.toString());
+            rc.response().end(sb.toString());
         });
     }
 }

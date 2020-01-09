@@ -8,15 +8,15 @@ import io.vertx.ext.web.RoutingContext;
 public class DelayExamples extends AbstractVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) throws Exception {
-        long delay = Long.parseLong(routingContext.request().getParam("delay"));
-        getVertx().setTimer(delay, ar -> routingContext.response()
+    protected void doGet(RoutingContext rc) throws Exception {
+        long delay = Long.parseLong(rc.request().getParam("delay"));
+        getVertx().setTimer(delay, ar -> rc.response()
                 .end("=>" + delay + "\r\n"));
     }
 
     @Override
-    protected void doPost(RoutingContext routingContext) throws Exception {
-        getVertx().runOnContext(v -> routingContext.response()
+    protected void doPost(RoutingContext rc) throws Exception {
+        getVertx().runOnContext(v -> rc.response()
                 .end("Test runOnSameEventLoop succeeded"));
     }
 }

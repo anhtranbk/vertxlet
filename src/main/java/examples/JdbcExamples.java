@@ -12,22 +12,22 @@ import io.vertx.ext.web.RoutingContext;
 public class JdbcExamples extends AbstractVertxlet {
 
     @Override
-    protected void doGet(RoutingContext routingContext) throws Exception {
-        SQLConnection con = getSqlConnection(routingContext);
-        int id = Integer.parseInt(routingContext.request().getParam("id"));
+    protected void doGet(RoutingContext rc) throws Exception {
+        SQLConnection con = getSqlConnection(rc);
+        int id = Integer.parseInt(rc.request().getParam("id"));
 
         final String query = "SELECT id, value FROM random_value WHERE id = " + id;
         con.query(query, select -> {
             if (select.failed()) {
-                routingContext.fail(select.cause());
+                rc.fail(select.cause());
                 return;
             }
             try {
                 ResultSet rs = select.result();
                 int val = rs.getRows().get(0).getInteger("value");
-                routingContext.response().end("val=" + val + "\r\n");
+                rc.response().end("val=" + val + "\r\n");
             } catch (IndexOutOfBoundsException e) {
-                routingContext.fail(e);
+                rc.fail(e);
             }
         });
     }
