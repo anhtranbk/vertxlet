@@ -14,6 +14,8 @@ Make sure Maven has been installed on your workspace. Run the following command 
 
 ## How to use
 
+Define your request mapping in one of the following styles:
+
 ### Spring style controllers
 
 ```java
@@ -84,6 +86,20 @@ public class HelloExamples extends AbstractVertxlet {
     @Override
     protected void doPost(RoutingContext routingContext) throws Exception {
         super.doPost(routingContext);
+    }
+}
+
+```
+
+Start Vertxlet server:
+
+```java
+
+public class ExampleRunner {
+
+    public static void main(String[] args) {
+        String confPath = args[0];
+        Server.start(confPath);
     }
 }
 
