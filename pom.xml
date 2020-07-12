@@ -11,7 +11,7 @@
   <properties>
     <jdk.version>1.8</jdk.version>
     <junit.version>4.12</junit.version>
-    <vertx.version>3.0.0</vertx.version>
+    <vertx.version>3.9.1</vertx.version>
   </properties>
 
   <dependencies>
