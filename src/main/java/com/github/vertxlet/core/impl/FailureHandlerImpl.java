@@ -1,7 +1,7 @@
 package com.github.vertxlet.core.impl;
 
-import com.github.vertxlet.core.Constants;
 import com.github.vertxlet.core.DatabaseConnection;
+import com.github.vertxlet.core.Server;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -21,7 +21,7 @@ public class FailureHandlerImpl implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext rc) {
         logger.error("Unexpected error occur", rc.failure());
-        Map<String, DatabaseConnection<?>> connectionMap = rc.get(Constants.DATABASE_KEY);
+        Map<String, DatabaseConnection<?>> connectionMap = rc.get(Server.DB_KEY);
 
         rc.response().putHeader("Content-Type", "text/html")
                 .setStatusCode(500)

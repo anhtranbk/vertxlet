@@ -10,6 +10,8 @@ import io.vertx.core.logging.SLF4JLogDelegateFactory;
 
 public class Server {
 
+    public static final String DB_KEY = "vertxlet.db-key";
+
     private final VertxOptions vertxOptions;
     private final DeploymentOptions deploymentOptions;
     private final Config conf;

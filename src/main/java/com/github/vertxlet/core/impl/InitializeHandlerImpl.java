@@ -1,7 +1,7 @@
 package com.github.vertxlet.core.impl;
 
-import com.github.vertxlet.core.Constants;
 import com.github.vertxlet.core.DatabaseConnection;
+import com.github.vertxlet.core.Server;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
@@ -14,7 +14,7 @@ public class InitializeHandlerImpl implements Handler<RoutingContext> {
     public void handle(RoutingContext rc) {
         // Map for save DatabaseConnection instances, use for clean up
         Map<String, DatabaseConnection<?>> connectionMap = new HashMap<>();
-        rc.put(Constants.DATABASE_KEY, connectionMap);
+        rc.put(Server.DB_KEY, connectionMap);
         rc.next();
     }
 }
