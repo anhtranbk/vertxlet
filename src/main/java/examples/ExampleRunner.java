@@ -1,14 +1,14 @@
 package examples;
 
 import com.vertxlet.core.Server;
+import com.vertxlet.util.Config;
 
 public class ExampleRunner {
 
     public static void main(String[] args) {
-        if (args.length > 0) {
-            Server.start(args[0]);
-        } else {
-            Server.start();
-        }
+        Server server = Server.builder()
+                .applicationConfig(new Config())
+                .build();
+        server.start();
     }
 }

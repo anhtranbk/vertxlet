@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServerVerticle extends AbstractVerticle {
 
-    public static final String DEFAULT_SHARE_LOCAL_MAP = ServerVerticle.class.getName();
     private static final Logger logger = LoggerFactory.getLogger(ServerVerticle.class);
 
     private final Map<String, Vertxlet> vertxletMap = new HashMap<>();
@@ -40,7 +39,7 @@ public class ServerVerticle extends AbstractVerticle {
                 .handler(BodyHandler.create())
                 .failureHandler(FailureHandler.create());
 
-        logger.info("Add TimeoutHandler with timeout: " + options.timeout() + " ms");
+        logger.info("Add TimeoutHandler with timeout {} ms", options.timeout());
         router.route().handler(TimeoutHandler.create(options.timeout()));
 
         if (options.isEnableResponseTimeHandler()) {
@@ -50,7 +49,7 @@ public class ServerVerticle extends AbstractVerticle {
 
         if (options.isEnableLoggerHandler()) {
             logger.debug("LoggerHandler is enabled");
-            router.route().handler(LoggerHandler.create(false, LoggerFormat.DEFAULT));
+            router.route().handler(LoggerHandler.create(true, LoggerFormat.DEFAULT));
         }
 
         try {
@@ -67,8 +66,8 @@ public class ServerVerticle extends AbstractVerticle {
                 .requestHandler(router::accept)
                 .listen(options.port(), options.address(), res -> {
                     if (res.succeeded()) {
-                        logger.info(String.format("Http server started at [%s:%d]",
-                                options.address(), options.port()));
+                        logger.info("Http server started at [{}:{}]",
+                                options.address(), options.port());
                         initializeVertxlet(startPromise);
                     } else {
                         startPromise.fail(res.cause());
@@ -113,7 +112,7 @@ public class ServerVerticle extends AbstractVerticle {
             }
 
             for (String url : clazz.getAnnotation(VertxletMapping.class).url()) {
-                logger.info(String.format("Mapping url %s with class %s", url, clazz.getName()));
+                logger.info("Mapping url {} with class {}", url, clazz.getName());
                 vertxletMap.put(url, vertxlet);
 
                 router.route(url).handler(vertxlet::handle);

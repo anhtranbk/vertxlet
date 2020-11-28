@@ -1,28 +1,29 @@
 package com.vertxlet.core;
 
-import io.vertx.core.json.JsonObject;
+import com.vertxlet.util.Config;
 
 public class ServerOptions {
 
-    public static final int DEFAULT_PORT = 8888;
-    public static final String DEFAULT_ADDRESS = "0.0.0.0";
+    public static final int DEFAULT_PORT = 3310;
+    public static final String DEFAULT_ADDRESS = "127.0.0.1";
     public static final int DEFAULT_TIMEOUT = 2000;
 
-    private int port = DEFAULT_PORT;
-    private String address = DEFAULT_ADDRESS;
-    private int timeout = DEFAULT_TIMEOUT;
-    private boolean enableLoggerHandler = false;
-    private boolean enableResponseTimeHandler = false;
+    private final int port;
+    private final String address;
+    private final int timeout;
+    private final boolean enableLoggerHandler;
+    private final boolean enableResponseTimeHandler;
 
     public ServerOptions() {
+        this(new Config());
     }
 
-    public ServerOptions(JsonObject json) {
-        port = json.getInteger("port", DEFAULT_PORT);
-        address = json.getString("address", DEFAULT_ADDRESS);
-        timeout = json.getInteger("timeout", DEFAULT_TIMEOUT);
-        enableLoggerHandler = json.getInteger("enableLoggerHandler", 0) != 0;
-        enableResponseTimeHandler = json.getInteger("enableResponseTimeHandler", 0) != 0;
+    public ServerOptions(Config conf) {
+        port = conf.getInt("http.server.port", DEFAULT_PORT);
+        address = conf.getString("http.server.address", DEFAULT_ADDRESS);
+        timeout = conf.getInt("http.timeout", DEFAULT_TIMEOUT);
+        enableLoggerHandler = conf.getBool("http.enableLoggerHandler", true);
+        enableResponseTimeHandler = conf.getBool("http.enableResponseTimeHandler", false);
     }
 
     public String address() {
