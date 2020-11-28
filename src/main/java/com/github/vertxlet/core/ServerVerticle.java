@@ -3,7 +3,6 @@ package com.github.vertxlet.core;
 import com.github.vertxlet.core.impl.FailureHandlerImpl;
 import com.github.vertxlet.core.impl.InitializeHandlerImpl;
 import com.github.vertxlet.core.impl.VertxletContextImpl;
-import com.github.vertxlet.core.spring.RequestDispatcher;
 import com.github.vertxlet.util.ReflectionUtils;
 import com.github.vertxlet.util.Config;
 import io.vertx.core.AbstractVerticle;
@@ -26,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ServerVerticle extends AbstractVerticle {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerVerticle.class);
-
     private final Map<String, Vertxlet> vertxletMap = new HashMap<>();
     private final Config conf;
 
@@ -58,10 +56,12 @@ public class ServerVerticle extends AbstractVerticle {
 
         try {
             Context ctx = new VertxletContextImpl(vertx, conf);
-            scanVertxlet(ctx, router);
-            RequestDispatcher.init(ctx, router);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
-                | InstantiationException | VertxletException e) {
+            RequestDispatcher dispatcher = new RequestDispatcher(ctx, router);
+            dispatcher.scanControllers();
+
+            Map<String, Vertxlet> vertxletMap = dispatcher.scanVertxlet();
+            this.vertxletMap.putAll(vertxletMap);
+        } catch (Exception e) {
             logger.error("Error when scan urls", e);
             startPromise.fail(e);
             return;
@@ -82,46 +82,7 @@ public class ServerVerticle extends AbstractVerticle {
 
     @Override
     public void stop(Promise<Void> stopPromise) throws Exception {
-        AtomicInteger count = new AtomicInteger(vertxletMap.size());
-        if (count.get() <= 0) {
-            stopPromise.complete();
-            return;
-        }
-
-        vertxletMap.forEach((name, vertxlet) -> {
-            Promise<Void> promise = Promise.promise();
-            vertx.runOnContext(v -> vertxlet.destroy(promise));
-            promise.future().onComplete(ar -> {
-                if (ar.succeeded()) {
-                    if (count.decrementAndGet() == 0) {
-                        logger.info("All vertxlet destroy succeeded");
-                        stopPromise.complete();
-                    }
-                } else {
-                    stopPromise.fail(ar.cause());
-                }
-            });
-        });
-    }
-
-    private void scanVertxlet(Context ctx, Router router) throws Exception {
-        final Reflections reflections = new Reflections("");
-        for (Class<?> clazz : reflections.getTypesAnnotatedWith(VertxletMapping.class)) {
-            Vertxlet vertxlet;
-            try {
-                vertxlet = (Vertxlet) ReflectionUtils.loadClass(clazz);
-                ReflectionUtils.inject(vertxlet, ctx, Inject.class);
-            } catch (ClassCastException e) {
-                logger.error("Load class failed " + clazz.getName(), e);
-                continue;
-            }
-
-            for (String url : clazz.getAnnotation(VertxletMapping.class).url()) {
-                logger.info("Mapping url {} with class {}", url, clazz.getName());
-                vertxletMap.put(url, vertxlet);
-                router.route(url).handler(vertxlet);
-            }
-        }
+        destroyVertxlet(stopPromise);
     }
 
     private void initializeVertxlet(Promise<Void> startPromise) {
@@ -145,5 +106,27 @@ public class ServerVerticle extends AbstractVerticle {
                 }
             });
         }
+    }
+
+    private void destroyVertxlet(Promise<Void> stopPromise) {
+        AtomicInteger count = new AtomicInteger(vertxletMap.size());
+        if (count.get() <= 0) {
+            stopPromise.complete();
+            return;
+        }
+        vertxletMap.forEach((name, vertxlet) -> {
+            Promise<Void> promise = Promise.promise();
+            vertx.runOnContext(v -> vertxlet.destroy(promise));
+            promise.future().onComplete(ar -> {
+                if (ar.succeeded()) {
+                    if (count.decrementAndGet() == 0) {
+                        logger.info("All vertxlet destroy succeeded");
+                        stopPromise.complete();
+                    }
+                } else {
+                    stopPromise.fail(ar.cause());
+                }
+            });
+        });
     }
 }
