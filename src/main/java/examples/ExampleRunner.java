@@ -1,7 +1,7 @@
 package examples;
 
-import com.vertxlet.core.Server;
-import com.vertxlet.util.Config;
+import com.github.vertxlet.core.Server;
+import com.github.vertxlet.util.Config;
 
 public class ExampleRunner {
 
