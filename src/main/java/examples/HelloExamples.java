@@ -1,7 +1,7 @@
 package examples;
 
-import com.admicro.vertxlet.core.AbstractVertxlet;
-import com.admicro.vertxlet.core.VertxletMapping;
+import com.vertxlet.core.AbstractVertxlet;
+import com.vertxlet.core.VertxletMapping;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 

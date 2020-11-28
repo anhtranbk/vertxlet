@@ -1,6 +1,6 @@
 package examples;
 
-import com.admicro.vertxlet.core.Server;
+import com.vertxlet.core.Server;
 
 public class ExampleRunner {
 

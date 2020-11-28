@@ -1,7 +1,7 @@
 package examples;
 
-import com.admicro.vertxlet.core.mvc.Controller;
-import com.admicro.vertxlet.core.mvc.RequestMapping;
+import com.vertxlet.core.spring.Controller;
+import com.vertxlet.core.spring.RequestMapping;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
