@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Deprecated
 public class TaskRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskRunner.class);
