@@ -1,4 +1,4 @@
-## What is vertxlet
+## What is vertxlet ?
 
 Micro-library for easy, fast convert JEE Servlet/Spring-based application to [Vert.x](https://vertx.io) application
 
@@ -6,9 +6,9 @@ Micro-library for easy, fast convert JEE Servlet/Spring-based application to [Ve
 
 Clone project:
 
-`git clone https://github.com/tjeubaoit/vertxlet`
+`git clone https://github.com/anhtranbk/vertxlet`
 
-Make sure Maven has been installed on your workspace. Run the following command to install vertxlet to your Maven local repositories:
+Make sure Maven has been installed on your workspace. Run the following command to install vertxlet to your Maven local repository:
 
 `mvn clean install`
 
